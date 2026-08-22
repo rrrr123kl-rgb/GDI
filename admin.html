@@ -3,199 +3,321 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم | GDI ADMIN</title>
+  <title>GDI | لوحة التحكم المتطورة</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #030712;
-      --card-bg: rgba(15, 23, 42, 0.85);
-      --text: #f8fafc;
+      --card: #0f172a;
       --cyan: #00f0ff;
-      --purple: #c084fc;
-      --border: rgba(0, 240, 255, 0.3);
+      --purple: #a855f7;
+      --red: #ef4444;
+      --green: #22c55e;
+      --border: rgba(0, 240, 255, 0.2);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background: radial-gradient(circle at top, #1e1b4b 0%, var(--bg) 80%); color: var(--text); min-height: 100vh; padding: 1.5rem; }
+    body { background: var(--bg); color: #fff; min-height: 100vh; padding: 1.5rem 1rem; }
     
-    .login-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; z-index: 999; }
-    .login-box { background: var(--card-bg); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); text-align: center; max-width: 400px; width: 90%; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { text-align: center; color: var(--cyan); margin-bottom: 2rem; font-weight: 900; letter-spacing: 1px; }
     
-    .container { max-width: 800px; margin: 0 auto; display: none; }
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .card h3 { color: var(--cyan); margin-bottom: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .card h2 { color: var(--purple); margin-bottom: 1rem; font-size: 1.3rem; }
     
-    input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); color: #fff; margin-bottom: 1rem; outline: none; text-align: center; }
-    input:focus { border-color: var(--cyan); }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.4rem; color: #94a3b8; font-size: 0.9rem; }
+    input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; transition: 0.3s; }
+    input:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.3); }
     
-    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--cyan), var(--purple)); color: #000; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-    .btn-danger { background: #ef4444; color: #fff; width: auto; padding: 6px 12px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+    .btn-cyan { background: var(--cyan); color: #000; }
+    .btn-cyan:hover { box-shadow: 0 0 20px rgba(0,240,255,0.5); }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-red { background: var(--red); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; width: auto; }
+    .btn-edit { background: var(--purple); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; width: auto; margin-left: 5px; }
+
+    .list-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .list-item img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; margin-left: 10px; }
+    .info { display: flex; align-items: center; }
     
-    .item-row { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    #status { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 30px; background: var(--cyan); color: #000; font-weight: bold; display: none; box-shadow: 0 0 20px rgba(0,240,255,0.5); z-index: 1000; }
   </style>
 </head>
 <body>
 
-  <!-- شاشة الدخول للوحة -->
-  <div class="login-overlay" id="loginOverlay">
-    <div class="login-box">
-      <h3 style="color: var(--cyan); margin-bottom: 1rem;">🛡️ لوحة إدارة النظام</h3>
-      <input type="password" id="adminPass" placeholder="أدخل رمز لوحة التحكم">
-      <button class="btn" onclick="checkLogin()">دخول للوحة</button>
+  <div class="container">
+    <h1>⚙️ لوحة تحكم GDI المتقدمة</h1>
+
+    <div class="card">
+      <h2>🔑 الربط وحفظ التوكن</h2>
+      <div class="form-group">
+        <label>GitHub Personal Access Token:</label>
+        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+      </div>
+      <button class="btn btn-cyan" onclick="saveToken()">تأكيد وتحديث البيانات</button>
+    </div>
+
+    <div class="card">
+      <h2>📺 إدارة القنوات المباشرة</h2>
+      <input type="hidden" id="channelIndex" value="-1">
+      <div class="form-group">
+        <label>اسم القناة:</label>
+        <input type="text" id="cName" placeholder="مثال: beIN Sports 1">
+      </div>
+      <div class="form-group">
+        <label>صورة/لوجو القناة (رابط الصورة):</label>
+        <input type="text" id="cLogo" placeholder="https://example.com/logo.png">
+      </div>
+      <div class="form-group">
+        <label>نوع المصدر:</label>
+        <select id="cType">
+          <label>رابط مباشر M3U8 / HLS</label>
+          <option value="m3u8">رابط بث مباشر (m3u8)</option>
+          <option value="embed">رابط مضمن / ملف خارجية</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>رابط البث (Stream URL):</label>
+        <input type="text" id="cUrl" placeholder="https://domain.com/live/stream.m3u8">
+      </div>
+      <button class="btn btn-green" id="btnSaveChannel" onclick="addOrUpdateChannel()">➕ إضافة القناة</button>
+
+      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">القنوات الحالية:</h3>
+      <div id="channelsList" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>⚽ إدارة جدول المباريات</h2>
+      <input type="hidden" id="matchIndex" value="-1">
+      <div class="form-group">
+        <label>الفريق الأول:</label>
+        <input type="text" id="mTeam1" placeholder="مثال: ريال مدريد">
+      </div>
+      <div class="form-group">
+        <label>الفريق الثاني:</label>
+        <input type="text" id="mTeam2" placeholder="مثال: برشلونة">
+      </div>
+      <div class="form-group">
+        <label>وقت المباراة:</label>
+        <input type="text" id="mTime" placeholder="مثال: 10:00 مساءً">
+      </div>
+      <div class="form-group">
+        <label>رابط القناة الناقلة (اخياري):</label>
+        <input type="text" id="mStream" placeholder="رابط m3u8 مباشر">
+      </div>
+      <button class="btn btn-green" id="btnSaveMatch" onclick="addOrUpdateMatch()">➕ إضافة المباراة</button>
+
+      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">المباريات الحالية:</h3>
+      <div id="matchesList" style="margin-top: 10px;"></div>
     </div>
   </div>
 
-  <!-- لوحة التحكم الرئيسي -->
-  <div class="container" id="adminContainer">
-    <h1 style="text-align: center; color: var(--cyan); margin-bottom: 1.5rem;">⚡ لوحة تحكم GDI ⚡</h1>
-
-    <!-- إعدادات GitHub Token -->
-    <div class="card">
-      <h3>⚙️ ربط السيرفر (GitHub Token)</h3>
-      <input type="password" id="ghToken" placeholder="أدخل رمز ghp_...">
-      <button class="btn" onclick="saveToken()">حفظ وتفعيل الربط</button>
-    </div>
-
-    <!-- إدارة القنوات -->
-    <div class="card">
-      <h3>📺 إدارة القنوات</h3>
-      <input type="text" id="chName" placeholder="اسم القناة">
-      <input type="text" id="chUrl" placeholder="رابط البث (m3u8 أو رابط مباشر)">
-      <button class="btn" onclick="addChannel()">إضافة القناة</button>
-      <div id="channelsList" style="margin-top: 15px;"></div>
-    </div>
-
-    <!-- إدارة المباريات -->
-    <div class="card">
-      <h3>⚽ جدول المباريات</h3>
-      <input type="text" id="mTeam1" placeholder="الفريق الأول">
-      <input type="text" id="mTeam2" placeholder="الفريق الثاني">
-      <input type="text" id="mTime" placeholder="التوقيت (مثال: 09:00 مساءً)">
-      <button class="btn" onclick="addMatch()">إضافة المباراة</button>
-      <div id="matchesList" style="margin-top: 15px;"></div>
-    </div>
-  </div>
+  <div id="status"></div>
 
   <script>
-    const ADMIN_PASS = "admin8_2";
     const USER = "rrrr123kl-rgb";
     const REPO = "GDI";
+    let channelsData = [];
+    let matchesData = [];
 
-    let channels = [];
-    let matches = [];
-
-    function checkLogin() {
-      if(document.getElementById('adminPass').value === ADMIN_PASS) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('adminContainer').style.display = 'block';
-        document.getElementById('ghToken').value = localStorage.getItem('gdi_token') || '';
-        fetchData();
-      } else {
-        alert('الرمز غير صحيح!');
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedToken = localStorage.getItem("gdi_gh_token");
+      if(savedToken) {
+        document.getElementById("ghToken").value = savedToken;
+        fetchAllData();
       }
-    }
+    });
 
     function saveToken() {
-      const t = document.getElementById('ghToken').value.trim();
-      if(!t) return alert('أدخل الرمز!');
-      localStorage.setItem('gdi_token', t);
-      alert('تم حفظ الرمز بنجاح!');
-      fetchData();
+      const t = document.getElementById("ghToken").value.trim();
+      if(!t) return alert("يرجى إدخال التوكن");
+      localStorage.setItem("gdi_gh_token", t);
+      showStatus("تم حفظ التوكن جاري جلب البيانات...");
+      fetchAllData();
     }
 
-    async function fetchData() {
+    function showStatus(msg) {
+      const s = document.getElementById("status");
+      s.innerText = msg;
+      s.style.display = "block";
+      setTimeout(() => s.style.display = "none", 3000);
+    }
+
+    // جلب البيانات الحالية من GitHub
+    async function fetchAllData() {
       try {
         const cRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/channels.json?t=${Date.now()}`);
-        if(cRes.ok) channels = await cRes.json();
-        
+        if(cRes.ok) channelsData = await cRes.json();
+        renderChannels();
+
         const mRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/matches.json?t=${Date.now()}`);
-        if(mRes.ok) matches = await mRes.json();
-        
-        render();
+        if(mRes.ok) matchesData = await mRes.json();
+        renderMatches();
       } catch(e) { console.error(e); }
     }
 
-    async function pushToGitHub(path, content, msg) {
-      const token = localStorage.getItem('gdi_token');
-      if(!token) return alert('يرجى حفظ Token أولاً!');
+    function renderChannels() {
+      const div = document.getElementById("channelsList");
+      div.innerHTML = channelsData.map((c, i) => `
+        <div class="list-item">
+          <div class="info">
+            <img src="${c.logo || 'https://via.placeholder.com/40'}" alt="">
+            <div>
+              <strong>${c.name}</strong>
+              <div style="font-size:0.75rem; color:#94a3b8;">${c.type || 'm3u8'}</div>
+            </div>
+          </div>
+          <div>
+            <button class="btn-edit" onclick="editChannel(${i})">تعديل</button>
+            <button class="btn-red" onclick="deleteChannel(${i})">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
 
-      let sha = '';
+    function renderMatches() {
+      const div = document.getElementById("matchesList");
+      div.innerHTML = matchesData.map((m, i) => `
+        <div class="list-item">
+          <div>
+            <strong>${m.team1} 🆚 ${m.team2}</strong>
+            <div style="font-size:0.75rem; color:#94a3b8;">⏰ ${m.time}</div>
+          </div>
+          <div>
+            <button class="btn-edit" onclick="editMatch(${i})">تعديل</button>
+            <button class="btn-red" onclick="deleteMatch(${i})">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // إدارة القنوات
+    async function addOrUpdateChannel() {
+      const name = document.getElementById("cName").value.trim();
+      const logo = document.getElementById("cLogo").value.trim();
+      const type = document.getElementById("cType").value;
+      const url = document.getElementById("cUrl").value.trim();
+      const idx = parseInt(document.getElementById("channelIndex").value);
+
+      if(!name || !url) return alert("أدخل الاسم والرابط!");
+
+      const item = { name, logo, type, url };
+      if(idx === -1) channelsData.push(item);
+      else channelsData[idx] = item;
+
+      await syncToGithub("channels.json", channelsData);
+      resetChannelForm();
+    }
+
+    function editChannel(i) {
+      const c = channelsData[i];
+      document.getElementById("cName").value = c.name;
+      document.getElementById("cLogo").value = c.logo || '';
+      document.getElementById("cType").value = c.type || 'm3u8';
+      document.getElementById("cUrl").value = c.url;
+      document.getElementById("channelIndex").value = i;
+      document.getElementById("btnSaveChannel").innerText = "✏️ تحديث القناة";
+    }
+
+    async function deleteChannel(i) {
+      if(!confirm("هل تريد حذف هذه القناة؟")) return;
+      channelsData.splice(i, 1);
+      await syncToGithub("channels.json", channelsData);
+    }
+
+    function resetChannelForm() {
+      document.getElementById("cName").value = '';
+      document.getElementById("cLogo").value = '';
+      document.getElementById("cUrl").value = '';
+      document.getElementById("channelIndex").value = -1;
+      document.getElementById("btnSaveChannel").innerText = "➕ إضافة القناة";
+    }
+
+    // إدارة المباريات
+    async function addOrUpdateMatch() {
+      const team1 = document.getElementById("mTeam1").value.trim();
+      const team2 = document.getElementById("mTeam2").value.trim();
+      const time = document.getElementById("mTime").value.trim();
+      const url = document.getElementById("mStream").value.trim();
+      const idx = parseInt(document.getElementById("matchIndex").value);
+
+      if(!team1 || !team2 || !time) return alert("أكمل تفاصيل المباراة!");
+
+      const item = { team1, team2, time, url };
+      if(idx === -1) matchesData.push(item);
+      else matchesData[idx] = item;
+
+      await syncToGithub("matches.json", matchesData);
+      resetMatchForm();
+    }
+
+    function editMatch(i) {
+      const m = matchesData[i];
+      document.getElementById("mTeam1").value = m.team1;
+      document.getElementById("mTeam2").value = m.team2;
+      document.getElementById("mTime").value = m.time;
+      document.getElementById("mStream").value = m.url || '';
+      document.getElementById("matchIndex").value = i;
+      document.getElementById("btnSaveMatch").innerText = "✏️ تحديث المباراة";
+    }
+
+    async function deleteMatch(i) {
+      if(!confirm("هل تريد حذف هذه المباراة؟")) return;
+      matchesData.splice(i, 1);
+      await syncToGithub("matches.json", matchesData);
+    }
+
+    function resetMatchForm() {
+      document.getElementById("mTeam1").value = '';
+      document.getElementById("mTeam2").value = '';
+      document.getElementById("mTime").value = '';
+      document.getElementById("mStream").value = '';
+      document.getElementById("matchIndex").value = -1;
+      document.getElementById("btnSaveMatch").innerText = "➕ إضافة المباراة";
+    }
+
+    // رفع البيانات الحية إلى GitHub API
+    async function syncToGithub(filename, data) {
+      const token = localStorage.getItem("gdi_gh_token");
+      if(!token) return alert("يرجى إدخال التوكن أولاً!");
+
+      showStatus("جاري المزامنة والحفظ في GitHub...");
+
       try {
-        const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}`, {
-          headers: { 'Authorization': `token ${token}` }
+        const fileUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${filename}`;
+        
+        let sha = "";
+        const getRes = await fetch(fileUrl, { headers: { "Authorization": `token ${token}` } });
+        if(getRes.ok) {
+          const json = await getRes.json();
+          sha = json.sha;
+        }
+
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+        
+        const putRes = await fetch(fileUrl, {
+          method: "PUT",
+          headers: {
+            "Authorization": `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Update ${filename}`,
+            content: content,
+            sha: sha ? sha : undefined
+          })
         });
-        if(res.ok) { const d = await res.json(); sha = d.sha; }
-      } catch(e){}
 
-      const putRes = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${path}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: msg,
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
-          sha: sha ? sha : undefined
-        })
-      });
-
-      if(putRes.ok) {
-        alert('تم الحفظ والتحديث على السيرفر بنجاح!');
-        fetchData();
-      } else {
-        alert('خطأ بالرفع، تأكد من الـ Token!');
+        if(putRes.ok) {
+          showStatus("✅ تم الحفظ والتحديث بنجاح!");
+          fetchAllData();
+        } else {
+          alert("حدث خطأ أثناء الحفظ. تأكد من صحة التوكن والصلاحيات.");
+        }
+      } catch(e) {
+        console.error(e);
+        alert("فشل الاتصال بالخادم.");
       }
-    }
-
-    function render() {
-      const cList = document.getElementById('channelsList');
-      cList.innerHTML = channels.map((c, i) => `
-        <div class="item-row">
-          <span>📺 ${c.name}</span>
-          <button class="btn btn-danger" onclick="deleteChannel(${i})">حذف</button>
-        </div>
-      `).join('');
-
-      const mList = document.getElementById('matchesList');
-      mList.innerHTML = matches.map((m, i) => `
-        <div class="item-row">
-          <span>⚽ ${m.team1} VS ${m.team2} (${m.time})</span>
-          <button class="btn btn-danger" onclick="deleteMatch(${i})">حذف</button>
-        </div>
-      `).join('');
-    }
-
-    function addChannel() {
-      const name = document.getElementById('chName').value;
-      const url = document.getElementById('chUrl').value;
-      if(!name || !url) return alert('أكمل البيانات!');
-      channels.push({name, url});
-      pushToGitHub('channels.json', channels, 'إضافة قناة');
-      document.getElementById('chName').value = '';
-      document.getElementById('chUrl').value = '';
-    }
-
-    function deleteChannel(i) {
-      channels.splice(i, 1);
-      pushToGitHub('channels.json', channels, 'حذف قناة');
-    }
-
-    function addMatch() {
-      const team1 = document.getElementById('mTeam1').value;
-      const team2 = document.getElementById('mTeam2').value;
-      const time = document.getElementById('mTime').value;
-      if(!team1 || !team2 || !time) return alert('أكمل البيانات!');
-      matches.push({team1, team2, time});
-      pushToGitHub('matches.json', matches, 'إضافة مباراة');
-      document.getElementById('mTeam1').value = '';
-      document.getElementById('mTeam2').value = '';
-      document.getElementById('mTime').value = '';
-    }
-
-    function deleteMatch(i) {
-      matches.splice(i, 1);
-      pushToGitHub('matches.json', matches, 'حذف مباراة');
     }
   </script>
 </body>
