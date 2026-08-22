@@ -3,64 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GDI LIVE | البث المباشر</title>
+  <title>GDI STREAM | البث المباشر</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root {
       --bg: #030712;
-      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-bg: rgba(15, 23, 42, 0.75);
       --cyan: #00f0ff;
-      --purple: #c084fc;
-      --border: rgba(0, 240, 255, 0.2);
+      --purple: #a855f7;
+      --border: rgba(0, 240, 255, 0.25);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
     body { background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 80%); color: #fff; min-height: 100vh; padding: 1rem; }
 
-    /* OTP Modal Style */
-    .otp-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.98); backdrop-filter: blur(25px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-    .otp-card { background: var(--card-bg); border: 1px solid var(--cyan); box-shadow: 0 0 40px rgba(0, 240, 255, 0.15); border-radius: 24px; padding: 2.5rem 1.5rem; text-align: center; max-width: 380px; width: 90%; }
-    .otp-inputs { display: flex; gap: 10px; justify-content: center; direction: ltr; margin: 1.5rem 0; }
-    .otp-box { width: 50px; height: 55px; border-radius: 12px; background: rgba(0,0,0,0.6); border: 2px solid var(--border); color: var(--cyan); font-size: 1.6rem; font-weight: bold; text-align: center; outline: none; }
-    .otp-box:focus { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,240,255,0.4); }
+    /* Animated OTP Glass Overlay */
+    .otp-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(20px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .otp-card { background: var(--card-bg); border: 1px solid var(--cyan); box-shadow: 0 0 50px rgba(0, 240, 255, 0.2); border-radius: 24px; padding: 2.5rem 1.5rem; text-align: center; max-width: 400px; width: 90%; position: relative; overflow: hidden; }
+    
+    /* Nodes Canvas Animation */
+    #nodesCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.6; }
+
+    .otp-inputs { display: flex; gap: 12px; justify-content: center; direction: ltr; margin: 2rem 0; z-index: 2; position: relative; }
+    .otp-box { width: 55px; height: 60px; border-radius: 14px; background: rgba(0,0,0,0.6); border: 2px solid var(--border); color: var(--cyan); font-size: 1.8rem; font-weight: bold; text-align: center; outline: none; transition: 0.3s; }
+    .otp-box:focus { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,240,255,0.5); transform: translateY(-2px); }
 
     /* Player Modal */
-    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 8888; display: none; align-items: center; justify-content: center; padding: 1rem; }
-    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 16px; width: 100%; max-width: 800px; overflow: hidden; position: relative; }
-    .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 10; }
+    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 8888; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 20px; width: 100%; max-width: 900px; overflow: hidden; position: relative; box-shadow: 0 0 40px rgba(0,240,255,0.3); }
+    .close-btn { position: absolute; top: 12px; left: 12px; background: #ef4444; color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 10; font-size: 1.2rem; }
 
-    /* UI Layout */
-    .container { max-width: 900px; margin: 0 auto; }
-    .header { text-align: center; padding: 1.5rem 0; }
-    .header h1 { color: var(--cyan); font-weight: 900; letter-spacing: 1px; }
+    /* Main UI */
+    .container { max-width: 950px; margin: 0 auto; }
+    .header { text-align: center; padding: 2rem 0; }
+    .header h1 { color: var(--cyan); font-weight: 900; font-size: 2.2rem; text-shadow: 0 0 20px rgba(0,240,255,0.4); }
     
-    .section-title { color: var(--purple); margin: 1.5rem 0 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+    .section-title { color: var(--purple); margin: 2rem 0 1rem; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
     
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; text-align: center; transition: 0.2s; cursor: pointer; }
-    .card:hover { border-color: var(--cyan); transform: translateY(-3px); }
-    .match-time { background: rgba(0,240,255,0.1); color: var(--cyan); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-top: 8px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.2rem; text-align: center; transition: 0.3s; cursor: pointer; backdrop-filter: blur(10px); }
+    .card:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,240,255,0.15); }
+    .card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; margin-bottom: 10px; border: 1px solid var(--border); }
+    .match-time { background: rgba(0,240,255,0.1); color: var(--cyan); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-top: 10px; border: 1px solid var(--border); }
   </style>
 </head>
 <body>
 
-  <!-- شاشة الـ OTP -->
   <div class="otp-overlay" id="otpOverlay">
     <div class="otp-card">
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
-      <h2 style="color: var(--cyan);">رمز الدخول</h2>
-      <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">أدخل الرمز المكون من 4 أرقام للمتابعة</p>
+      <canvas id="nodesCanvas"></canvas>
+      <div style="font-size: 2.8rem; margin-bottom: 0.5rem; position:relative; z-index:2;">🔒</div>
+      <h2 style="color: var(--cyan); position:relative; z-index:2;">رمز الدخول المباشر</h2>
+      <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px; position:relative; z-index:2;">أدخل الرمز المكون من 4 أرقام للمتابعة</p>
+      
       <div class="otp-inputs">
         <input type="password" maxlength="1" class="otp-box" autofocus>
         <input type="password" maxlength="1" class="otp-box">
         <input type="password" maxlength="1" class="otp-box">
         <input type="password" maxlength="1" class="otp-box">
       </div>
-      <p id="otpErr" style="color:#ef4444; font-size:0.8rem; display:none;">❌ الرمز غير صحيح</p>
+      <p id="otpErr" style="color:#ef4444; font-size:0.85rem; display:none; position:relative; z-index:2;">❌ الرمز غير صحيح</p>
     </div>
   </div>
 
-  <!-- مشغل الفيديو -->
   <div class="player-overlay" id="playerOverlay">
     <div class="player-box">
       <button class="close-btn" onclick="closePlayer()">×</button>
@@ -68,10 +73,9 @@
     </div>
   </div>
 
-  <!-- الواجهة الرئيسية -->
   <div class="container">
     <div class="header">
-      <h1>⚡ GDI STREAM ⚡</h1>
+      <h1>⚡ GDI LIVE STREAM ⚡</h1>
     </div>
 
     <div class="section-title">⚽ مباريات اليوم</div>
@@ -82,16 +86,22 @@
   </div>
 
   <script>
-    const OTP_CODE = "2002"; // رمز الدخول للزوار
+    const OTP_CODE = "2002";
     const USER = "rrrr123kl-rgb";
     const REPO = "GDI";
 
-    // 1. نظام الـ OTP وحفظ الجلسة
     document.addEventListener("DOMContentLoaded", () => {
       if(localStorage.getItem("gdi_user_auth") === "true") {
         document.getElementById("otpOverlay").style.display = "none";
+      } else {
+        initNodesAnimation();
       }
 
+      setupOtpInputs();
+      loadContent();
+    });
+
+    function setupOtpInputs() {
       const inputs = document.querySelectorAll(".otp-box");
       inputs.forEach((input, index) => {
         input.addEventListener("input", () => {
@@ -102,9 +112,7 @@
           if(e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus();
         });
       });
-
-      loadContent();
-    });
+    }
 
     function verifyOTP() {
       const inputs = document.querySelectorAll(".otp-box");
@@ -123,20 +131,14 @@
       }
     }
 
-    // 2. جلب البيانات وعرضها
+    // Dynamic Content Loader
     async function loadContent() {
       try {
         const cRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/channels.json?t=${Date.now()}`);
-        if(cRes.ok) {
-          const channels = await cRes.json();
-          renderChannels(channels);
-        }
+        if(cRes.ok) renderChannels(await cRes.json());
 
         const mRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/matches.json?t=${Date.now()}`);
-        if(mRes.ok) {
-          const matches = await mRes.json();
-          renderMatches(matches);
-        }
+        if(mRes.ok) renderMatches(await mRes.json());
       } catch(e) { console.error(e); }
     }
 
@@ -145,8 +147,9 @@
       if(!channels.length) return grid.innerHTML = '<p style="color:#64748b;">لا توجد قنوات حالياً</p>';
       grid.innerHTML = channels.map(c => `
         <div class="card" onclick="playStream('${c.url}')">
-          <h3 style="color:var(--cyan);">📺 ${c.name}</h3>
-          <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">اضغط للمشاهدة المباشرة</p>
+          <img src="${c.logo || 'https://via.placeholder.com/60'}" alt="">
+          <h3 style="color:var(--cyan);">${c.name}</h3>
+          <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">اضغط لبدء البث</p>
         </div>
       `).join('');
     }
@@ -155,20 +158,21 @@
       const grid = document.getElementById("matchesGrid");
       if(!matches.length) return grid.innerHTML = '<p style="color:#64748b;">لا توجد مباريات اليوم</p>';
       grid.innerHTML = matches.map(m => `
-        <div class="card">
-          <h4 style="font-size:1.1rem;">${m.team1} 🆚 ${m.team2}</h4>
+        <div class="card" ${m.url ? `onclick="playStream('${m.url}')"` : ''}>
+          <h4 style="font-size:1.1rem; color:#fff;">${m.team1} 🆚 ${m.team2}</h4>
           <span class="match-time">⏰ ${m.time}</span>
         </div>
       `).join('');
     }
 
-    // 3. مشغل ה-HLS للـ M3U8
+    // Stream Player Setup
     function playStream(url) {
+      if(!url) return;
       const modal = document.getElementById("playerOverlay");
       const video = document.getElementById("videoPlayer");
       modal.style.display = "flex";
 
-      if (Hls.isSupported() && url.includes(".m3u8")) {
+      if (Hls.isSupported() && (url.includes(".m3u8") || url.includes("m3u"))) {
         const hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(video);
@@ -184,6 +188,50 @@
       video.pause();
       video.src = "";
       document.getElementById("playerOverlay").style.display = "none";
+    }
+
+    // Animated Canvas for OTP background
+    function initNodesAnimation() {
+      const canvas = document.getElementById("nodesCanvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      let pts = [
+        {x: 50, y: 50, vx: 1, vy: 1},
+        {x: canvas.width - 50, y: 50, vx: -1, vy: 1},
+        {x: 50, y: canvas.height - 50, vx: 1, vy: -1},
+        {x: canvas.width - 50, y: canvas.height - 50, vx: -1, vy: -1}
+      ];
+
+      function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.strokeStyle = "#00f0ff";
+        ctx.lineWidth = 1.5;
+
+        pts.forEach(p => {
+          p.x += p.vx * 0.5;
+          p.y += p.vy * 0.5;
+          if(p.x < 20 || p.x > canvas.width - 20) p.vx *= -1;
+          if(p.y < 20 || p.y > canvas.height - 20) p.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = "#00f0ff";
+          ctx.fill();
+        });
+
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        ctx.lineTo(pts[1].x, pts[1].y);
+        ctx.lineTo(pts[3].x, pts[3].y);
+        ctx.lineTo(pts[2].x, pts[2].y);
+        ctx.closePath();
+        ctx.stroke();
+
+        requestAnimationFrame(animate);
+      }
+      animate();
     }
   </script>
 </body>
