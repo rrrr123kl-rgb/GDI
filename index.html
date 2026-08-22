@@ -102,12 +102,7 @@
       transition: 0.3s;
       box-shadow: 0 0 20px var(--cyan-glow);
     }
-    .btn-neon:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 35px var(--purple-glow);
-    }
 
-    /* الهيدر والأيقونات */
     .container { max-width: 1100px; margin: 0 auto; padding: 0 1.2rem; }
     
     header {
@@ -128,50 +123,17 @@
       letter-spacing: 1px;
     }
 
-    /* أزرار السوشيال ميديا بالنيون */
-    .social-links {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .social-links { display: flex; align-items: center; gap: 12px; }
     .social-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.6);
+      display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px;
+      text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: all 0.3s ease;
+      border: 1px solid var(--border); background: rgba(15, 23, 42, 0.6);
     }
+    .social-btn.telegram { color: #0088cc; border-color: rgba(0, 136, 204, 0.4); }
+    .social-btn.telegram:hover { background: #0088cc; color: #fff; box-shadow: 0 0 20px rgba(0, 136, 204, 0.6); }
+    .social-btn.tiktok { color: #ff0050; border-color: rgba(255, 0, 80, 0.4); }
+    .social-btn.tiktok:hover { background: linear-gradient(45deg, #ff0050, #00f2fe); color: #fff; box-shadow: 0 0 20px rgba(255, 0, 80, 0.6); }
 
-    .social-btn.telegram {
-      color: #0088cc;
-      border-color: rgba(0, 136, 204, 0.4);
-    }
-    .social-btn.telegram:hover {
-      background: #0088cc;
-      color: #fff;
-      box-shadow: 0 0 20px rgba(0, 136, 204, 0.6);
-      transform: translateY(-3px);
-    }
-
-    .social-btn.tiktok {
-      color: #ff0050;
-      border-color: rgba(255, 0, 80, 0.4);
-    }
-    .social-btn.tiktok:hover {
-      background: linear-gradient(45deg, #ff0050, #00f2fe);
-      color: #fff;
-      box-shadow: 0 0 20px rgba(255, 0, 80, 0.6);
-      transform: translateY(-3px);
-    }
-
-    /* المشغل الرئيسي المدمج */
     .main-player-section {
       margin: 1.5rem 0 3rem;
       border-radius: 24px;
@@ -182,150 +144,76 @@
     }
     
     .player-header {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .live-badge {
-      background: var(--red);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 0 12px var(--red);
-      animation: blink 1.5s infinite;
+      background: var(--red); color: #fff; font-size: 0.75rem; font-weight: bold;
+      padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 0 12px var(--red); animation: blink 1.5s infinite;
     }
     @keyframes blink { 50% { opacity: 0.5; } }
 
-    .video-container {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%;
-      background: #000;
-    }
-    .video-container video {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      object-fit: contain;
-    }
-
-    .search-box {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-      margin-bottom: 2rem;
+    .server-btn-list { display: flex; gap: 6px; flex-wrap: wrap; }
+    .server-btn {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
       transition: 0.3s;
     }
-    .search-box:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 15px var(--cyan-glow);
+    .server-btn:hover, .server-btn.active {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 10px var(--cyan-glow);
     }
 
-    .section-title {
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: var(--cyan);
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-shadow: 0 0 10px var(--cyan-glow);
-    }
+    .video-container { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+    .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.2rem;
-      margin-bottom: 3rem;
+    .search-box {
+      width: 100%; padding: 14px 20px; border-radius: 16px; border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.5); color: #fff; font-size: 1rem; outline: none; margin-bottom: 2rem; transition: 0.3s;
     }
+    .search-box:focus { border-color: var(--cyan); box-shadow: 0 0 15px var(--cyan-glow); }
+
+    .section-title { font-size: 1.4rem; font-weight: 900; color: var(--cyan); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px var(--cyan-glow); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; margin-bottom: 3rem; }
 
     .card {
-      border-radius: 20px;
-      padding: 1.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
+      border-radius: 20px; padding: 1.2rem; text-align: center; cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
     }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(circle, var(--cyan-glow) 0%, transparent 70%);
-      opacity: 0;
-      transition: 0.4s;
-    }
-
-    .card:hover::before { opacity: 1; }
-
-    .card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: var(--cyan);
-      box-shadow: 0 10px 30px var(--cyan-glow);
-    }
-
-    .card img {
-      width: 70px;
-      height: 70px;
-      border-radius: 16px;
-      object-fit: cover;
-      margin-bottom: 12px;
-      border: 2px solid var(--border);
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-
+    .card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--cyan); box-shadow: 0 10px 30px var(--cyan-glow); }
+    .card img { width: 70px; height: 70px; border-radius: 16px; object-fit: cover; margin-bottom: 12px; border: 2px solid var(--border); }
     .card h3 { font-size: 1.1rem; color: #fff; font-weight: 700; margin-bottom: 6px; }
     .card-status { font-size: 0.8rem; color: var(--cyan); font-weight: bold; }
 
-    .match-card {
-      background: linear-gradient(145deg, rgba(15,23,42,0.8), rgba(3,7,18,0.9));
-      border: 1px solid rgba(168, 85, 247, 0.3);
-    }
-    .match-card:hover {
-      border-color: var(--purple);
-      box-shadow: 0 10px 30px var(--purple-glow);
-    }
-
+    .match-card { background: linear-gradient(145deg, rgba(15,23,42,0.8), rgba(3,7,18,0.9)); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .match-card:hover { border-color: var(--purple); box-shadow: 0 10px 30px var(--purple-glow); }
     .match-teams { font-size: 1.1rem; font-weight: 900; color: #fff; margin-bottom: 8px; }
-    .match-time { 
-      display: inline-block; 
-      padding: 4px 12px; 
-      border-radius: 20px; 
-      background: rgba(168, 85, 247, 0.15); 
-      color: var(--purple); 
-      font-size: 0.85rem; 
-      font-weight: bold; 
-      border: 1px solid var(--purple); 
-    }
+    .match-time { display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(168, 85, 247, 0.15); color: var(--purple); font-size: 0.85rem; font-weight: bold; border: 1px solid var(--purple); }
 
-    footer {
-      text-align: center;
-      padding: 2rem 0 1rem;
-      border-top: 1px solid var(--border);
-      margin-top: 3rem;
-    }
+    footer { text-align: center; padding: 2rem 0 1rem; border-top: 1px solid var(--border); margin-top: 3rem; }
   </style>
 </head>
 <body>
 
   <div class="otp-overlay" id="otpOverlay">
     <div class="otp-card glass">
-      <div style="font-size: 3.5rem; margin-bottom: 0.5rem; text-shadow: 0 0 20px var(--cyan);">🔒</div>
+      <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🔒</div>
       <h2 style="color: var(--cyan); font-weight: 900; font-size: 1.8rem;">GDI VIP STREAM</h2>
       <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 6px;">أدخل رمز الدخول الحصري للمشاهدة</p>
       
@@ -344,17 +232,9 @@
   <div class="container">
     <header>
       <div class="logo">⚡ GDI STREAM</div>
-      
       <div class="social-links">
-        <a href="https://t.me/drgg8" target="_blank" class="social-btn telegram">
-          <i class="fab fa-telegram-plane"></i>
-          <span>التليجرام</span>
-        </a>
-        
-        <a href="https://www.tiktok.com/@31.mn?_r=1&_t=ZS-995SXd0ZuSb" target="_blank" class="social-btn tiktok">
-          <i class="fab fa-tiktok"></i>
-          <span>تيك توك</span>
-        </a>
+        <a href="https://t.me/drgg8" target="_blank" class="social-btn telegram"><i class="fab fa-telegram-plane"></i><span>التليجرام</span></a>
+        <a href="https://www.tiktok.com/@31.mn?_r=1&_t=ZS-995SXd0ZuSb" target="_blank" class="social-btn tiktok"><i class="fab fa-tiktok"></i><span>تيك توك</span></a>
       </div>
     </header>
 
@@ -362,8 +242,9 @@
       <div class="player-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <span class="live-badge"><span>●</span> LIVE</span>
-          <span id="currentStreamTitle" style="font-weight: bold; color: var(--cyan);">اختر قناة أو مباراة للبدء بالمشاهدة</span>
+          <span id="currentStreamTitle" style="font-weight: bold; color: var(--cyan);">اختر قناة أو مباراة للبدء</span>
         </div>
+        <div class="server-btn-list" id="serverButtons"></div>
       </div>
       <div class="video-container">
         <video id="mainVideoPlayer" controls poster="https://via.placeholder.com/1280x720/0f172a/00f0ff?text=GDI+STREAM+PLAYER"></video>
@@ -411,17 +292,11 @@
           if(input.value.length === 1 && idx < inputs.length - 1) inputs[idx + 1].focus();
           if(getFullCode().length === 4) verifyOTP();
         });
-        input.addEventListener("keydown", (e) => {
-          if(e.key === "Backspace" && !input.value && idx > 0) inputs[idx - 1].focus();
-        });
       });
     }
 
     function getFullCode() {
-      return document.getElementById("code1").value +
-             document.getElementById("code2").value +
-             document.getElementById("code3").value +
-             document.getElementById("code4").value;
+      return document.getElementById("code1").value + document.getElementById("code2").value + document.getElementById("code3").value + document.getElementById("code4").value;
     }
 
     function verifyOTP() {
@@ -430,8 +305,6 @@
         document.getElementById("otpOverlay").style.display = "none";
       } else {
         document.getElementById("otpErr").style.display = "block";
-        document.querySelectorAll(".otp-box").forEach(i => i.value = "");
-        document.getElementById("code1").focus();
       }
     }
 
@@ -450,12 +323,8 @@
 
     function renderChannels(channels) {
       const grid = document.getElementById("channelsGrid");
-      if(!channels.length) {
-        grid.innerHTML = '<p style="color:#64748b; grid-column: 1/-1;">لا توجد قنوات مطابقة</p>';
-        return;
-      }
-      grid.innerHTML = channels.map(c => `
-        <div class="card glass" onclick="startPlay('${c.url}', '${c.name}')">
+      grid.innerHTML = channels.map((c, idx) => `
+        <div class="card glass" onclick="selectChannel(${idx})">
           <img src="${c.logo || 'https://via.placeholder.com/70/0f172a/00f0ff?text=TV'}" alt="">
           <h3>${c.name}</h3>
           <div class="card-status">▶ تشغيل الآن</div>
@@ -465,37 +334,45 @@
 
     function renderMatches(matches) {
       const grid = document.getElementById("matchesGrid");
-      if(!matches.length) {
-        grid.innerHTML = '<p style="color:#64748b; grid-column: 1/-1;">لا توجد مباريات مطابقة</p>';
-        return;
-      }
       grid.innerHTML = matches.map(m => `
-        <div class="card glass match-card" ${m.url ? `onclick="startPlay('${m.url}', '${m.team1} vs ${m.team2}')"` : ''}>
+        <div class="card glass match-card" ${m.url ? `onclick="playSource('${m.url}', '${m.team1} vs ${m.team2}')"` : ''}>
           <div class="match-teams">${m.team1} 🆚 ${m.team2}</div>
           <span class="match-time">⏰ ${m.time}</span>
         </div>
       `).join('');
     }
 
-    function filterContent() {
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      const filteredC = allChannels.filter(c => c.name.toLowerCase().includes(q));
-      const filteredM = allMatches.filter(m => (m.team1 + m.team2).toLowerCase().includes(q));
-      renderChannels(filteredC);
-      renderMatches(filteredM);
+    function selectChannel(idx) {
+      const c = allChannels[idx];
+      const servers = c.servers || (c.url ? [c.url] : []);
+      const serverBtnsDiv = document.getElementById("serverButtons");
+      
+      serverBtnsDiv.innerHTML = '';
+      if(servers.length > 1) {
+        servers.forEach((sUrl, sIdx) => {
+          const btn = document.createElement("button");
+          btn.className = `server-btn ${sIdx === 0 ? 'active' : ''}`;
+          btn.innerText = `سيرفر ${sIdx + 1}`;
+          btn.onclick = () => {
+            document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            playSource(sUrl, c.name);
+          };
+          serverBtnsDiv.appendChild(btn);
+        });
+      }
+
+      if(servers.length > 0) {
+        playSource(servers[0], c.name);
+      }
     }
 
-    function startPlay(url, title) {
-      if(!url) return alert("رابط البث غير متوفر حالياً!");
-
+    function playSource(url, title) {
       document.getElementById("currentStreamTitle").innerText = "يعرض الآن: " + title;
       document.getElementById("playerSection").scrollIntoView({ behavior: 'smooth' });
 
       const video = document.getElementById("mainVideoPlayer");
-
-      if (hlsPlayer) {
-        hlsPlayer.destroy();
-      }
+      if (hlsPlayer) hlsPlayer.destroy();
 
       if (Hls.isSupported() && (url.includes(".m3u8") || url.includes("m3u"))) {
         hlsPlayer = new Hls();
@@ -506,6 +383,12 @@
         video.src = url;
         video.play();
       }
+    }
+
+    function filterContent() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      renderChannels(allChannels.filter(c => c.name.toLowerCase().includes(q)));
+      renderMatches(allMatches.filter(m => (m.team1 + m.team2).toLowerCase().includes(q)));
     }
   </script>
 </body>
