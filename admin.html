@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم | GDI STREAM</title>
+  <title>لوحة التحكم الشاملة | GDI STREAM</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -61,7 +61,7 @@
 
     label { display: block; font-size: 0.9rem; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
     
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], textarea {
       width: 100%;
       padding: 12px 16px;
       border-radius: 12px;
@@ -74,7 +74,9 @@
       transition: 0.3s;
     }
 
-    input:focus {
+    textarea { height: 120px; resize: vertical; }
+
+    input:focus, textarea:focus {
       border-color: var(--cyan);
       box-shadow: 0 0 15px var(--cyan-glow);
     }
@@ -135,13 +137,33 @@
   <div class="container">
     <h1>⚙️ لوحة تحكم GDI STREAM</h1>
 
+    <!-- 🔑 إعدادات GitHub Token -->
     <div class="section-card">
       <div class="section-title">🔑 إعدادات GitHub Token</div>
-      <label>أدخل رمز التوكن (GitHub Personal Access Token):</label>
+      <label>أدخل رمز التوكن الخاص بك (GitHub Token):</label>
       <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن</button>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن</button>
+        <button class="btn btn-purple" onclick="checkSavedToken()">🔍 فحص التوكن المحفوظ</button>
+      </div>
     </div>
 
+    <!-- 📁 إضافة وحفظ ملفات M3U / M3U8 والقنوات المباشرة -->
+    <div class="section-card">
+      <div class="section-title">📁 إضافة قوائم M3U / M3U8</div>
+      <label>اسم قائمة التشغيل (مثال: ملف القنوات الرئيسية):</label>
+      <input type="text" id="m3uName" placeholder="M3U Playlist">
+
+      <label>رابط ملف M3U خارجي أو محتوى ملف M3U:</label>
+      <input type="text" id="m3uUrl" placeholder="https://domain.com/playlist.m3u">
+      
+      <label>أو قم بجمعه وكتابة كود M3U مباشرة هنا:</label>
+      <textarea id="m3uContent" placeholder="#EXTM3U&#10;#EXTINF:-1,Channel 1&#10;http://example.com/live.m3u8"></textarea>
+
+      <button class="btn btn-green" onclick="saveM3uFile()">📂 حفظ ونشر ملف M3U</button>
+    </div>
+
+    <!-- 📺 إدارة القنوات -->
     <div class="section-card">
       <div class="section-title">📺 إضافة / تعديل قناة (تعدد السيرفرات)</div>
       
@@ -170,6 +192,7 @@
       </div>
     </div>
 
+    <!-- ⚽ إدارة المباريات -->
     <div class="section-card">
       <div class="section-title">⚽ إضافة / تعديل مباراة</div>
       
@@ -213,14 +236,25 @@
       const token = document.getElementById("ghToken").value.trim();
       if(!token) return alert("يرجى إدخال التوكن!");
       localStorage.setItem("gdi_github_token", token);
-      alert("تم حفظ التوكن بنجاح!");
+      alert("تم حفظ التوكن في المتصفح!");
+      loadData();
+    }
+
+    function checkSavedToken() {
+      const saved = localStorage.getItem("gdi_github_token");
+      if(saved) {
+        alert("✅ التوكن المحفوظ هو:\n" + saved);
+      } else {
+        alert("❌ لا يوجد توكن محفوظ حالياً في المتصفح!");
+      }
     }
 
     function getToken() {
-      return localStorage.getItem("gdi_github_token");
+      const inputToken = document.getElementById("ghToken").value.trim();
+      const savedToken = (localStorage.getItem("gdi_github_token") || "").trim();
+      return inputToken || savedToken;
     }
 
-    // إضافة حقل سيرفر جديد
     function addServerInput(url = "") {
       const container = document.getElementById("serversContainer");
       const count = container.children.length + 1;
@@ -278,7 +312,25 @@
       `).join('');
     }
 
-    // تعديل القناة
+    async function saveM3uFile() {
+      const token = getToken();
+      if(!token) return alert("يرجى إدخال التوكن في خانة الإعدادات أعلات أولاً!");
+
+      const name = document.getElementById("m3uName").value.trim() || "playlist.m3u";
+      const url = document.getElementById("m3uUrl").value.trim();
+      const content = document.getElementById("m3uContent").value.trim();
+
+      let finalContent = content;
+      if(!finalContent && url) {
+        finalContent = `#EXTM3U\n#EXTINF:-1,${name}\n${url}`;
+      }
+
+      if(!finalContent) return alert("يرجى إدخال رابط أو كود M3U!");
+
+      const fileName = name.endsWith('.m3u') ? name : `${name}.m3u`;
+      await pushRawToGithub(fileName, finalContent, "تحديث ملف M3U");
+    }
+
     function editChannel(index) {
       const c = channels[index];
       document.getElementById("chanName").value = c.name;
@@ -301,7 +353,7 @@
 
     async function saveChannel() {
       const token = getToken();
-      if(!token) return alert("يرجى حفظ GitHub Token أولاً!");
+      if(!token) return alert("يرجى إدخال التوكن أولاً!");
 
       const name = document.getElementById("chanName").value.trim();
       const logo = document.getElementById("chanLogo").value.trim();
@@ -321,7 +373,6 @@
 
       await pushToGithub("channels.json", channels, "تحديث القنوات");
       
-      // إعادة التعيين
       document.getElementById("chanName").value = '';
       document.getElementById("chanLogo").value = '';
       document.getElementById("serversContainer").innerHTML = '<div class="server-input-group"><input type="text" class="chan-server-url" placeholder="رابط البث (سيرفر 1) - m3u8"></div>';
@@ -338,7 +389,6 @@
       renderChannelsList();
     }
 
-    // تعديل المباراة
     function editMatch(index) {
       const m = matches[index];
       document.getElementById("mTeam1").value = m.team1;
@@ -353,7 +403,7 @@
 
     async function saveMatch() {
       const token = getToken();
-      if(!token) return alert("يرجى حفظ GitHub Token أولاً!");
+      if(!token) return alert("يرجى إدخال التوكن أولاً!");
 
       const team1 = document.getElementById("mTeam1").value.trim();
       const team2 = document.getElementById("mTeam2").value.trim();
@@ -390,16 +440,22 @@
       renderMatchesList();
     }
 
-    // الدالة الرئيسية للتحديث المباشر على GitHub
     async function pushToGithub(filename, data, commitMessage) {
+      const jsonString = JSON.stringify(data, null, 2);
+      await pushRawToGithub(filename, jsonString, commitMessage);
+    }
+
+    async function pushRawToGithub(filename, textContent, commitMessage) {
       const token = getToken();
-      const path = filename;
-      const apiUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}`;
+      const apiUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${filename}`;
 
       try {
         let sha = "";
         const getFile = await fetch(apiUrl, {
-          headers: { Authorization: `token ${token}` }
+          headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github.v3+json"
+          }
         });
 
         if (getFile.ok) {
@@ -407,13 +463,17 @@
           sha = fileData.sha;
         }
 
-        const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+        const utf8Bytes = new TextEncoder().encode(textContent);
+        let binaryStr = "";
+        utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
+        const contentBase64 = btoa(binaryStr);
 
         const res = await fetch(apiUrl, {
           method: "PUT",
           headers: {
-            Authorization: `token ${token}`,
-            "Content-Type": "application/json"
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.github.v3+json"
           },
           body: JSON.stringify({
             message: commitMessage,
@@ -426,10 +486,10 @@
           alert("✅ تم الحفظ والتحديث بنجاح!");
         } else {
           const err = await res.json();
-          alert("❌ حدث خطأ أثناء الحفظ: " + (err.message || "تأكد من صحة التوكن والصلاحيات"));
+          alert("❌ حدث خطأ أثناء الحفظ: " + (err.message || "تأكد من التوكن"));
         }
       } catch (e) {
-        alert("❌ حدث خطأ في الاتصال بالسيرفر!");
+        alert("❌ حدث خطأ أثناء الاتصال بـ GitHub!");
       }
     }
   </script>
