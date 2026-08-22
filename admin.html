@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GDI | لوحة التحكم المتطورة</title>
+  <title>GDI | لوحة التحكم المحترفة</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root {
       --bg: #030712;
@@ -16,99 +17,122 @@
       --border: rgba(0, 240, 255, 0.2);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background: var(--bg); color: #fff; min-height: 100vh; padding: 1.5rem 1rem; }
+    body { background: var(--bg); color: #fff; min-height: 100vh; padding: 2rem 1rem; }
     
-    .container { max-width: 900px; margin: 0 auto; }
-    h1 { text-align: center; color: var(--cyan); margin-bottom: 2rem; font-weight: 900; letter-spacing: 1px; }
+    .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    h1 { text-align: center; color: var(--cyan); font-weight: 900; letter-spacing: 1px; margin-bottom: 1rem; }
     
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .card h2 { color: var(--purple); margin-bottom: 1rem; font-size: 1.3rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .card h2 { color: var(--purple); margin-bottom: 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
     
-    .form-group { margin-bottom: 1rem; }
-    label { display: block; margin-bottom: 0.4rem; color: #94a3b8; font-size: 0.9rem; }
-    input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; transition: 0.3s; }
-    input:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.3); }
+    .form-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    label { color: #94a3b8; font-size: 0.9rem; }
+    input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; transition: 0.3s; font-size: 0.95rem; }
+    input[type="file"] { padding: 8px; cursor: pointer; }
+    input:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.3); }
     
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
     .btn-cyan { background: var(--cyan); color: #000; }
-    .btn-cyan:hover { box-shadow: 0 0 20px rgba(0,240,255,0.5); }
     .btn-green { background: var(--green); color: #fff; }
-    .btn-red { background: var(--red); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; width: auto; }
-    .btn-edit { background: var(--purple); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; width: auto; margin-left: 5px; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-red { background: var(--red); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; width: auto; }
+    .btn-edit { background: var(--purple); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; width: auto; margin-left: 5px; }
 
-    .list-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-    .list-item img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; margin-left: 10px; }
+    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 12px; overflow: hidden; margin-top: 10px; }
+    video { width: 100%; height: auto; display: block; max-height: 350px; }
+
+    .list-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .list-item img { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; margin-left: 10px; border: 1px solid var(--border); }
     .info { display: flex; align-items: center; }
-    
+
     #status { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 30px; background: var(--cyan); color: #000; font-weight: bold; display: none; box-shadow: 0 0 20px rgba(0,240,255,0.5); z-index: 1000; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>⚙️ لوحة تحكم GDI المتقدمة</h1>
+    <h1>⚙️ لوحة تحكم GDI</h1>
 
     <div class="card">
-      <h2>🔑 الربط وحفظ التوكن</h2>
+      <h2>🔑 إعدادات GitHub Token</h2>
       <div class="form-group">
-        <label>GitHub Personal Access Token:</label>
+        <label>أدخل رمز التوكن (GitHub Token):</label>
         <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
       </div>
-      <button class="btn btn-cyan" onclick="saveToken()">تأكيد وتحديث البيانات</button>
+      <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن</button>
     </div>
 
     <div class="card">
-      <h2>📺 إدارة القنوات المباشرة</h2>
+      <h2>🎬 مشغل معاينة البث</h2>
+      <div class="form-group">
+        <label>رابط التجربة (m3u8):</label>
+        <input type="text" id="testUrl" placeholder="https://domain.com/live.m3u8">
+      </div>
+      <button class="btn btn-purple" onclick="testStream()">تشغيل المعاينة</button>
+      <div class="player-box" style="margin-top: 15px;">
+        <video id="previewPlayer" controls></video>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📺 إضافة / تعديل القنوات (رابط أو ملف M3U)</h2>
       <input type="hidden" id="channelIndex" value="-1">
+      
       <div class="form-group">
         <label>اسم القناة:</label>
         <input type="text" id="cName" placeholder="مثال: beIN Sports 1">
       </div>
+      
       <div class="form-group">
-        <label>صورة/لوجو القناة (رابط الصورة):</label>
-        <input type="text" id="cLogo" placeholder="https://example.com/logo.png">
+        <label>صورة/شعارات القناة (رابط الصورة):</label>
+        <input type="text" id="cLogo" placeholder="https://domain.com/logo.png">
       </div>
+      
       <div class="form-group">
-        <label>نوع المصدر:</label>
-        <select id="cType">
-          <label>رابط مباشر M3U8 / HLS</label>
-          <option value="m3u8">رابط بث مباشر (m3u8)</option>
-          <option value="embed">رابط مضمن / ملف خارجية</option>
-        </select>
+        <label>📁 اختيار ملف M3U من جهازك (اختياري):</label>
+        <input type="file" id="m3uFileInput" accept=".m3u,.m3u8" onchange="handleM3UFile(event)">
+        <span style="font-size:0.75rem; color:var(--cyan);">عند اختيار ملف m3u سيتم استخراج الرابط أو رفعه تلقائياً.</span>
       </div>
+      
       <div class="form-group">
-        <label>رابط البث (Stream URL):</label>
-        <input type="text" id="cUrl" placeholder="https://domain.com/live/stream.m3u8">
+        <label>رابط البث أو الملف (Stream URL / M3U):</label>
+        <input type="text" id="cUrl" placeholder="https://domain.com/stream.m3u8">
       </div>
-      <button class="btn btn-green" id="btnSaveChannel" onclick="addOrUpdateChannel()">➕ إضافة القناة</button>
+      
+      <button class="btn btn-green" id="btnSaveChannel" onclick="addOrUpdateChannel()">➕ حفظ ونشر القناة</button>
 
-      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">القنوات الحالية:</h3>
-      <div id="channelsList" style="margin-top: 10px;"></div>
+      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">القنوات المضافة حالياً:</h3>
+      <div id="channelsList"></div>
     </div>
 
     <div class="card">
-      <h2>⚽ إدارة جدول المباريات</h2>
+      <h2>⚽ جدول المباريات</h2>
       <input type="hidden" id="matchIndex" value="-1">
+      
       <div class="form-group">
         <label>الفريق الأول:</label>
         <input type="text" id="mTeam1" placeholder="مثال: ريال مدريد">
       </div>
+      
       <div class="form-group">
         <label>الفريق الثاني:</label>
         <input type="text" id="mTeam2" placeholder="مثال: برشلونة">
       </div>
+      
       <div class="form-group">
-        <label>وقت المباراة:</label>
+        <label>الوقت:</label>
         <input type="text" id="mTime" placeholder="مثال: 10:00 مساءً">
       </div>
+      
       <div class="form-group">
-        <label>رابط القناة الناقلة (اخياري):</label>
-        <input type="text" id="mStream" placeholder="رابط m3u8 مباشر">
+        <label>رابط القناة الناقلة للمباراة (اختياري):</label>
+        <input type="text" id="mStream" placeholder="رابط البث المباشر">
       </div>
-      <button class="btn btn-green" id="btnSaveMatch" onclick="addOrUpdateMatch()">➕ إضافة المباراة</button>
+      
+      <button class="btn btn-green" id="btnSaveMatch" onclick="addOrUpdateMatch()">➕ حفظ ونشر المباراة</button>
 
-      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">المباريات الحالية:</h3>
-      <div id="matchesList" style="margin-top: 10px;"></div>
+      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">المباريات المضافة:</h3>
+      <div id="matchesList"></div>
     </div>
   </div>
 
@@ -130,9 +154,9 @@
 
     function saveToken() {
       const t = document.getElementById("ghToken").value.trim();
-      if(!t) return alert("يرجى إدخال التوكن");
+      if(!t) return alert("يرجى إدخال التوكن!");
       localStorage.setItem("gdi_gh_token", t);
-      showStatus("تم حفظ التوكن جاري جلب البيانات...");
+      showStatus("تم حفظ التوكن، جاري تحميل البيانات...");
       fetchAllData();
     }
 
@@ -143,7 +167,51 @@
       setTimeout(() => s.style.display = "none", 3000);
     }
 
-    // جلب البيانات الحالية من GitHub
+    // معالجة قراءة ملف M3U من الهاتف أو الكمبيوتر
+    function handleM3UFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        // البحث عن أوّل رابط بث داخل ملف m3u
+        const lines = text.split('\n');
+        let streamUrl = "";
+        for (let line of lines) {
+          line = line.trim();
+          if (line && !line.startsWith('#')) {
+            streamUrl = line;
+            break;
+          }
+        }
+
+        if (streamUrl) {
+          document.getElementById("cUrl").value = streamUrl;
+          showStatus("✅ تم قراءة واستخراج رابط البث من ملف M3U بنجاح!");
+        } else {
+          alert("تعذر قراءة رابط مباشر داخل ملف M3U.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function testStream() {
+      const url = document.getElementById("testUrl").value.trim();
+      if(!url) return alert("ضع رابطاً لتجربته أولاً!");
+      const video = document.getElementById("previewPlayer");
+
+      if (Hls.isSupported() && url.includes(".m3u8")) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+      } else {
+        video.src = url;
+        video.play();
+      }
+    }
+
     async function fetchAllData() {
       try {
         const cRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/channels.json?t=${Date.now()}`);
@@ -161,10 +229,9 @@
       div.innerHTML = channelsData.map((c, i) => `
         <div class="list-item">
           <div class="info">
-            <img src="${c.logo || 'https://via.placeholder.com/40'}" alt="">
-            <div>
+            <img src="${c.logo || 'https://via.placeholder.com/45'}" alt="">
+            <div style="margin-right: 10px;">
               <strong>${c.name}</strong>
-              <div style="font-size:0.75rem; color:#94a3b8;">${c.type || 'm3u8'}</div>
             </div>
           </div>
           <div>
@@ -191,17 +258,15 @@
       `).join('');
     }
 
-    // إدارة القنوات
     async function addOrUpdateChannel() {
       const name = document.getElementById("cName").value.trim();
       const logo = document.getElementById("cLogo").value.trim();
-      const type = document.getElementById("cType").value;
       const url = document.getElementById("cUrl").value.trim();
       const idx = parseInt(document.getElementById("channelIndex").value);
 
-      if(!name || !url) return alert("أدخل الاسم والرابط!");
+      if(!name || !url) return alert("يرجى ملء اسم القناة والرابط أو اختيار ملف M3U!");
 
-      const item = { name, logo, type, url };
+      const item = { name, logo, type: 'm3u', url };
       if(idx === -1) channelsData.push(item);
       else channelsData[idx] = item;
 
@@ -213,14 +278,13 @@
       const c = channelsData[i];
       document.getElementById("cName").value = c.name;
       document.getElementById("cLogo").value = c.logo || '';
-      document.getElementById("cType").value = c.type || 'm3u8';
       document.getElementById("cUrl").value = c.url;
       document.getElementById("channelIndex").value = i;
       document.getElementById("btnSaveChannel").innerText = "✏️ تحديث القناة";
     }
 
     async function deleteChannel(i) {
-      if(!confirm("هل تريد حذف هذه القناة؟")) return;
+      if(!confirm("تأكيد حذف القناة؟")) return;
       channelsData.splice(i, 1);
       await syncToGithub("channels.json", channelsData);
     }
@@ -229,11 +293,11 @@
       document.getElementById("cName").value = '';
       document.getElementById("cLogo").value = '';
       document.getElementById("cUrl").value = '';
+      document.getElementById("m3uFileInput").value = '';
       document.getElementById("channelIndex").value = -1;
-      document.getElementById("btnSaveChannel").innerText = "➕ إضافة القناة";
+      document.getElementById("btnSaveChannel").innerText = "➕ حفظ ونشر القناة";
     }
 
-    // إدارة المباريات
     async function addOrUpdateMatch() {
       const team1 = document.getElementById("mTeam1").value.trim();
       const team2 = document.getElementById("mTeam2").value.trim();
@@ -241,7 +305,7 @@
       const url = document.getElementById("mStream").value.trim();
       const idx = parseInt(document.getElementById("matchIndex").value);
 
-      if(!team1 || !team2 || !time) return alert("أكمل تفاصيل المباراة!");
+      if(!team1 || !team2 || !time) return alert("يرجى ملء تفاصيل المباراة!");
 
       const item = { team1, team2, time, url };
       if(idx === -1) matchesData.push(item);
@@ -262,7 +326,7 @@
     }
 
     async function deleteMatch(i) {
-      if(!confirm("هل تريد حذف هذه المباراة؟")) return;
+      if(!confirm("تأكيد حذف المباراة؟")) return;
       matchesData.splice(i, 1);
       await syncToGithub("matches.json", matchesData);
     }
@@ -273,20 +337,19 @@
       document.getElementById("mTime").value = '';
       document.getElementById("mStream").value = '';
       document.getElementById("matchIndex").value = -1;
-      document.getElementById("btnSaveMatch").innerText = "➕ إضافة المباراة";
+      document.getElementById("btnSaveMatch").innerText = "➕ حفظ ونشر المباراة";
     }
 
-    // رفع البيانات الحية إلى GitHub API
     async function syncToGithub(filename, data) {
       const token = localStorage.getItem("gdi_gh_token");
-      if(!token) return alert("يرجى إدخال التوكن أولاً!");
+      if(!token) return alert("ضع التوكن الخاص بك أولاً!");
 
-      showStatus("جاري المزامنة والحفظ في GitHub...");
+      showStatus("جاري المزامنة والحفظ...");
 
       try {
         const fileUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${filename}`;
-        
         let sha = "";
+
         const getRes = await fetch(fileUrl, { headers: { "Authorization": `token ${token}` } });
         if(getRes.ok) {
           const json = await getRes.json();
@@ -309,14 +372,14 @@
         });
 
         if(putRes.ok) {
-          showStatus("✅ تم الحفظ والتحديث بنجاح!");
+          showStatus("✅ تم الحفظ بنجاح!");
           fetchAllData();
         } else {
-          alert("حدث خطأ أثناء الحفظ. تأكد من صحة التوكن والصلاحيات.");
+          alert("حدث خطأ، تأكد من التوكن.");
         }
       } catch(e) {
         console.error(e);
-        alert("فشل الاتصال بالخادم.");
+        alert("فشل الاتصال بـ GitHub.");
       }
     }
   </script>
