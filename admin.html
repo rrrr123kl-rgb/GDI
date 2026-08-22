@@ -74,7 +74,7 @@
       transition: 0.3s;
     }
 
-    textarea { height: 120px; resize: vertical; }
+    textarea { height: 100px; resize: vertical; }
 
     input:focus, textarea:focus {
       border-color: var(--cyan);
@@ -144,28 +144,24 @@
       <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
       <div style="display: flex; gap: 10px;">
         <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن</button>
-        <button class="btn btn-purple" onclick="checkSavedToken()">🔍 فحص التوكن المحفوظ</button>
       </div>
     </div>
 
-    <!-- 📁 إضافة وحفظ ملفات M3U / M3U8 والقنوات المباشرة -->
+    <!-- 📁 إضافة وحفظ ملفات M3U -->
     <div class="section-card">
-      <div class="section-title">📁 إضافة قوائم M3U / M3U8</div>
-      <label>اسم قائمة التشغيل (مثال: ملف القنوات الرئيسية):</label>
-      <input type="text" id="m3uName" placeholder="M3U Playlist">
+      <div class="section-title">📁 إضافة/رفع ملف M3U</div>
+      <label>اسم الملف (مثال: quran أو channels):</label>
+      <input type="text" id="m3uName" placeholder="playlist">
 
-      <label>رابط ملف M3U خارجي أو محتوى ملف M3U:</label>
-      <input type="text" id="m3uUrl" placeholder="https://domain.com/playlist.m3u">
-      
-      <label>أو قم بجمعه وكتابة كود M3U مباشرة هنا:</label>
-      <textarea id="m3uContent" placeholder="#EXTM3U&#10;#EXTINF:-1,Channel 1&#10;http://example.com/live.m3u8"></textarea>
+      <label>رابط ملف M3U أو محتوى الملف مباشرة:</label>
+      <textarea id="m3uContent" placeholder="#EXTM3U&#10;#EXTINF:-1,اسم القناة&#10;http://domain.com/live.m3u8"></textarea>
 
-      <button class="btn btn-green" onclick="saveM3uFile()">📂 حفظ ونشر ملف M3U</button>
+      <button class="btn btn-green" onclick="saveM3uFile()">📂 رفع ونشر ملف M3U على GitHub</button>
     </div>
 
     <!-- 📺 إدارة القنوات -->
     <div class="section-card">
-      <div class="section-title">📺 إضافة / تعديل قناة (تعدد السيرفرات)</div>
+      <div class="section-title">📺 إضافة / تعديل قناة</div>
       
       <input type="hidden" id="channelEditIndex" value="-1">
       
@@ -184,10 +180,10 @@
       
       <button class="btn btn-add-server" onclick="addServerInput()">+ إضافة سيرفر بث آخر</button>
 
-      <button class="btn btn-green" id="saveChanBtn" onclick="saveChannel()">➕ حفظ ونشر القناة</button>
+      <button class="btn btn-green" id="saveChanBtn" onclick="saveChannel()">➕ حفظ ونشر القناة على GitHub</button>
 
       <div style="margin-top: 1.5rem;">
-        <label>القنوات المضافة حالياً:</label>
+        <label>القنوات المضافة حالياً على GitHub:</label>
         <div class="item-list" id="channelsList"></div>
       </div>
     </div>
@@ -210,10 +206,10 @@
       <label>رابط بث المباراة المباشر:</label>
       <input type="text" id="mUrl" placeholder="https://domain.com/match.m3u8">
 
-      <button class="btn btn-green" id="saveMatchBtn" onclick="saveMatch()">➕ حفظ ونشر المباراة</button>
+      <button class="btn btn-green" id="saveMatchBtn" onclick="saveMatch()">➕ حفظ ونشر المباراة على GitHub</button>
 
       <div style="margin-top: 1.5rem;">
-        <label>المباريات المضافة حالياً:</label>
+        <label>المباريات المضافة حالياً على GitHub:</label>
         <div class="item-list" id="matchesList"></div>
       </div>
     </div>
@@ -236,17 +232,7 @@
       const token = document.getElementById("ghToken").value.trim();
       if(!token) return alert("يرجى إدخال التوكن!");
       localStorage.setItem("gdi_github_token", token);
-      alert("تم حفظ التوكن في المتصفح!");
-      loadData();
-    }
-
-    function checkSavedToken() {
-      const saved = localStorage.getItem("gdi_github_token");
-      if(saved) {
-        alert("✅ التوكن المحفوظ هو:\n" + saved);
-      } else {
-        alert("❌ لا يوجد توكن محفوظ حالياً في المتصفح!");
-      }
+      alert("✅ تم حفظ التوكن في المتصفح!");
     }
 
     function getToken() {
@@ -314,21 +300,15 @@
 
     async function saveM3uFile() {
       const token = getToken();
-      if(!token) return alert("يرجى إدخال التوكن في خانة الإعدادات أعلات أولاً!");
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات!");
 
-      const name = document.getElementById("m3uName").value.trim() || "playlist.m3u";
-      const url = document.getElementById("m3uUrl").value.trim();
+      const name = document.getElementById("m3uName").value.trim() || "playlist";
       const content = document.getElementById("m3uContent").value.trim();
 
-      let finalContent = content;
-      if(!finalContent && url) {
-        finalContent = `#EXTM3U\n#EXTINF:-1,${name}\n${url}`;
-      }
-
-      if(!finalContent) return alert("يرجى إدخال رابط أو كود M3U!");
+      if(!content) return alert("يرجى كتابة محتوى ملف M3U!");
 
       const fileName = name.endsWith('.m3u') ? name : `${name}.m3u`;
-      await pushRawToGithub(fileName, finalContent, "تحديث ملف M3U");
+      await pushRawToGithub(fileName, content, "تحديث ملف M3U");
     }
 
     function editChannel(index) {
@@ -347,13 +327,13 @@
         servers.forEach(s => addServerInput(s));
       }
 
-      document.getElementById("saveChanBtn").innerText = "🔄 التحديث والحفظ";
+      document.getElementById("saveChanBtn").innerText = "🔄 التحديث والحفظ على GitHub";
       window.scrollTo({ top: 300, behavior: 'smooth' });
     }
 
     async function saveChannel() {
       const token = getToken();
-      if(!token) return alert("يرجى إدخال التوكن أولاً!");
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات فوق!");
 
       const name = document.getElementById("chanName").value.trim();
       const logo = document.getElementById("chanLogo").value.trim();
@@ -365,28 +345,39 @@
 
       const channelObj = { name, logo, servers, url: servers[0] };
 
+      let tempChannels = [...channels];
       if(editIdx >= 0) {
-        channels[editIdx] = channelObj;
+        tempChannels[editIdx] = channelObj;
       } else {
-        channels.push(channelObj);
+        tempChannels.push(channelObj);
       }
 
-      await pushToGithub("channels.json", channels, "تحديث القنوات");
+      const success = await pushToGithub("channels.json", tempChannels, "تحديث القنوات");
       
-      document.getElementById("chanName").value = '';
-      document.getElementById("chanLogo").value = '';
-      document.getElementById("serversContainer").innerHTML = '<div class="server-input-group"><input type="text" class="chan-server-url" placeholder="رابط البث (سيرفر 1) - m3u8"></div>';
-      document.getElementById("channelEditIndex").value = "-1";
-      document.getElementById("saveChanBtn").innerText = "➕ حفظ ونشر القناة";
-
-      renderChannelsList();
+      if(success) {
+        channels = tempChannels;
+        document.getElementById("chanName").value = '';
+        document.getElementById("chanLogo").value = '';
+        document.getElementById("serversContainer").innerHTML = '<div class="server-input-group"><input type="text" class="chan-server-url" placeholder="رابط البث (سيرفر 1) - m3u8"></div>';
+        document.getElementById("channelEditIndex").value = "-1";
+        document.getElementById("saveChanBtn").innerText = "➕ حفظ ونشر القناة على GitHub";
+        renderChannelsList();
+      }
     }
 
     async function deleteChannel(index) {
+      const token = getToken();
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً!");
       if(!confirm("هل أنت تأكد من حذف هذه القناة؟")) return;
-      channels.splice(index, 1);
-      await pushToGithub("channels.json", channels, "حذف قناة");
-      renderChannelsList();
+
+      let tempChannels = [...channels];
+      tempChannels.splice(index, 1);
+
+      const success = await pushToGithub("channels.json", tempChannels, "حذف قناة");
+      if(success) {
+        channels = tempChannels;
+        renderChannelsList();
+      }
     }
 
     function editMatch(index) {
@@ -397,13 +388,13 @@
       document.getElementById("mUrl").value = m.url || '';
       document.getElementById("matchEditIndex").value = index;
 
-      document.getElementById("saveMatchBtn").innerText = "🔄 التحديث والحفظ";
+      document.getElementById("saveMatchBtn").innerText = "🔄 التحديث والحفظ على GitHub";
       window.scrollTo({ top: 700, behavior: 'smooth' });
     }
 
     async function saveMatch() {
       const token = getToken();
-      if(!token) return alert("يرجى إدخال التوكن أولاً!");
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات فوق!");
 
       const team1 = document.getElementById("mTeam1").value.trim();
       const team2 = document.getElementById("mTeam2").value.trim();
@@ -415,38 +406,54 @@
 
       const matchObj = { team1, team2, time, url };
 
+      let tempMatches = [...matches];
       if(editIdx >= 0) {
-        matches[editIdx] = matchObj;
+        tempMatches[editIdx] = matchObj;
       } else {
-        matches.push(matchObj);
+        tempMatches.push(matchObj);
       }
 
-      await pushToGithub("matches.json", matches, "تحديث المباريات");
+      const success = await pushToGithub("matches.json", tempMatches, "تحديث المباريات");
 
-      document.getElementById("mTeam1").value = '';
-      document.getElementById("mTeam2").value = '';
-      document.getElementById("mTime").value = '';
-      document.getElementById("mUrl").value = '';
-      document.getElementById("matchEditIndex").value = "-1";
-      document.getElementById("saveMatchBtn").innerText = "➕ حفظ ونشر المباراة";
-
-      renderMatchesList();
+      if(success) {
+        matches = tempMatches;
+        document.getElementById("mTeam1").value = '';
+        document.getElementById("mTeam2").value = '';
+        document.getElementById("mTime").value = '';
+        document.getElementById("mUrl").value = '';
+        document.getElementById("matchEditIndex").value = "-1";
+        document.getElementById("saveMatchBtn").innerText = "➕ حفظ ونشر المباراة على GitHub";
+        renderMatchesList();
+      }
     }
 
     async function deleteMatch(index) {
+      const token = getToken();
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً!");
       if(!confirm("هل أنت تأكد من حذف هذه المباراة؟")) return;
-      matches.splice(index, 1);
-      await pushToGithub("matches.json", matches, "حذف مباراة");
-      renderMatchesList();
+
+      let tempMatches = [...matches];
+      tempMatches.splice(index, 1);
+
+      const success = await pushToGithub("matches.json", tempMatches, "حذف مباراة");
+      if(success) {
+        matches = tempMatches;
+        renderMatchesList();
+      }
     }
 
     async function pushToGithub(filename, data, commitMessage) {
       const jsonString = JSON.stringify(data, null, 2);
-      await pushRawToGithub(filename, jsonString, commitMessage);
+      return await pushRawToGithub(filename, jsonString, commitMessage);
     }
 
     async function pushRawToGithub(filename, textContent, commitMessage) {
       const token = getToken();
+      if(!token) {
+        alert("❌ يرجى إدخال التوكن لترفع التغيرات على GitHub!");
+        return false;
+      }
+
       const apiUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${filename}`;
 
       try {
@@ -483,13 +490,16 @@
         });
 
         if (res.ok) {
-          alert("✅ تم الحفظ والتحديث بنجاح!");
+          alert("✅ تم رفع الملف وحفظ التغييرات بنجاح على GitHub!");
+          return true;
         } else {
           const err = await res.json();
-          alert("❌ حدث خطأ أثناء الحفظ: " + (err.message || "تأكد من التوكن"));
+          alert("❌ فشلت عملية الرفع! خطأ من GitHub: " + (err.message || "رمز التوكن غير صحيح أو انتهت صلاحيته"));
+          return false;
         }
       } catch (e) {
-        alert("❌ حدث خطأ أثناء الاتصال بـ GitHub!");
+        alert("❌ حدث خطأ في الاتصال بالشبكة!");
+        return false;
       }
     }
   </script>
