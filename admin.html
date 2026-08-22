@@ -3,383 +3,433 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GDI | لوحة التحكم المحترفة</title>
+  <title>لوحة التحكم | GDI STREAM</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root {
       --bg: #030712;
-      --card: #0f172a;
+      --card-bg: rgba(15, 23, 42, 0.85);
       --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.3);
       --purple: #a855f7;
-      --red: #ef4444;
+      --purple-glow: rgba(168, 85, 247, 0.3);
       --green: #22c55e;
+      --red: #ef4444;
       --border: rgba(0, 240, 255, 0.2);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background: var(--bg); color: #fff; min-height: 100vh; padding: 2rem 1rem; }
-    
-    .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    h1 { text-align: center; color: var(--cyan); font-weight: 900; letter-spacing: 1px; margin-bottom: 1rem; }
-    
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .card h2 { color: var(--purple); margin-bottom: 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-    
-    .form-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
-    label { color: #94a3b8; font-size: 0.9rem; }
-    input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; transition: 0.3s; font-size: 0.95rem; }
-    input[type="file"] { padding: 8px; cursor: pointer; }
-    input:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.3); }
-    
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    .btn-cyan { background: var(--cyan); color: #000; }
-    .btn-green { background: var(--green); color: #fff; }
-    .btn-purple { background: var(--purple); color: #fff; }
-    .btn-red { background: var(--red); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; width: auto; }
-    .btn-edit { background: var(--purple); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; width: auto; margin-left: 5px; }
 
-    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 12px; overflow: hidden; margin-top: 10px; }
-    video { width: 100%; height: auto; display: block; max-height: 350px; }
+    body {
+      background: #030712;
+      background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1), transparent 50%);
+      color: #fff;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
 
-    .list-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
-    .list-item img { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; margin-left: 10px; border: 1px solid var(--border); }
-    .info { display: flex; align-items: center; }
+    .container { max-width: 900px; margin: 0 auto; }
 
-    #status { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 30px; background: var(--cyan); color: #000; font-weight: bold; display: none; box-shadow: 0 0 20px rgba(0,240,255,0.5); z-index: 1000; }
+    h1 {
+      text-align: center;
+      color: var(--cyan);
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--cyan);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label { display: block; font-size: 0.9rem; color: #94a3b8; margin-bottom: 6px; font-weight: bold; }
+    
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 1.2rem;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .server-input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 0.8rem;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-cyan { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan-glow); }
+    .btn-purple { background: var(--purple); color: #fff; box-shadow: 0 0 15px var(--purple-glow); }
+    .btn-green { background: var(--green); color: #000; width: 100%; font-size: 1.1rem; margin-top: 1rem; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-add-server { background: rgba(0, 240, 255, 0.15); color: var(--cyan); border: 1px dashed var(--cyan); margin-bottom: 1.2rem; }
+
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .item-row {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info h4 { font-size: 1rem; color: #fff; }
+    .item-info p { font-size: 0.8rem; color: #64748b; }
+
+    .actions { display: flex; gap: 8px; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>⚙️ لوحة تحكم GDI</h1>
+    <h1>⚙️ لوحة تحكم GDI STREAM</h1>
 
-    <div class="card">
-      <h2>🔑 إعدادات GitHub Token</h2>
-      <div class="form-group">
-        <label>أدخل رمز التوكن (GitHub Token):</label>
-        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
-      </div>
+    <div class="section-card">
+      <div class="section-title">🔑 إعدادات GitHub Token</div>
+      <label>أدخل رمز التوكن (GitHub Personal Access Token):</label>
+      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
       <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن</button>
     </div>
 
-    <div class="card">
-      <h2>🎬 مشغل معاينة البث</h2>
-      <div class="form-group">
-        <label>رابط التجربة (m3u8):</label>
-        <input type="text" id="testUrl" placeholder="https://domain.com/live.m3u8">
+    <div class="section-card">
+      <div class="section-title">📺 إضافة / تعديل قناة (تعدد السيرفرات)</div>
+      
+      <input type="hidden" id="channelEditIndex" value="-1">
+      
+      <label>اسم القناة:</label>
+      <input type="text" id="chanName" placeholder="مثال: beIN Sports 1 HD">
+
+      <label>رابط شعار القناة (صورة):</label>
+      <input type="text" id="chanLogo" placeholder="https://domain.com/logo.png">
+
+      <label>سيرفرات البث المباشر:</label>
+      <div id="serversContainer">
+        <div class="server-input-group">
+          <input type="text" class="chan-server-url" placeholder="رابط البث (سيرفر 1) - m3u8">
+        </div>
       </div>
-      <button class="btn btn-purple" onclick="testStream()">تشغيل المعاينة</button>
-      <div class="player-box" style="margin-top: 15px;">
-        <video id="previewPlayer" controls></video>
+      
+      <button class="btn btn-add-server" onclick="addServerInput()">+ إضافة سيرفر بث آخر</button>
+
+      <button class="btn btn-green" id="saveChanBtn" onclick="saveChannel()">➕ حفظ ونشر القناة</button>
+
+      <div style="margin-top: 1.5rem;">
+        <label>القنوات المضافة حالياً:</label>
+        <div class="item-list" id="channelsList"></div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>📺 إضافة / تعديل القنوات (رابط أو ملف M3U)</h2>
-      <input type="hidden" id="channelIndex" value="-1">
+    <div class="section-card">
+      <div class="section-title">⚽ إضافة / تعديل مباراة</div>
       
-      <div class="form-group">
-        <label>اسم القناة:</label>
-        <input type="text" id="cName" placeholder="مثال: beIN Sports 1">
-      </div>
-      
-      <div class="form-group">
-        <label>صورة/شعارات القناة (رابط الصورة):</label>
-        <input type="text" id="cLogo" placeholder="https://domain.com/logo.png">
-      </div>
-      
-      <div class="form-group">
-        <label>📁 اختيار ملف M3U من جهازك (اختياري):</label>
-        <input type="file" id="m3uFileInput" accept=".m3u,.m3u8" onchange="handleM3UFile(event)">
-        <span style="font-size:0.75rem; color:var(--cyan);">عند اختيار ملف m3u سيتم استخراج الرابط أو رفعه تلقائياً.</span>
-      </div>
-      
-      <div class="form-group">
-        <label>رابط البث أو الملف (Stream URL / M3U):</label>
-        <input type="text" id="cUrl" placeholder="https://domain.com/stream.m3u8">
-      </div>
-      
-      <button class="btn btn-green" id="btnSaveChannel" onclick="addOrUpdateChannel()">➕ حفظ ونشر القناة</button>
+      <input type="hidden" id="matchEditIndex" value="-1">
 
-      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">القنوات المضافة حالياً:</h3>
-      <div id="channelsList"></div>
-    </div>
+      <label>الفريق الأول:</label>
+      <input type="text" id="mTeam1" placeholder="مثال: ريال مدريد">
 
-    <div class="card">
-      <h2>⚽ جدول المباريات</h2>
-      <input type="hidden" id="matchIndex" value="-1">
-      
-      <div class="form-group">
-        <label>الفريق الأول:</label>
-        <input type="text" id="mTeam1" placeholder="مثال: ريال مدريد">
-      </div>
-      
-      <div class="form-group">
-        <label>الفريق الثاني:</label>
-        <input type="text" id="mTeam2" placeholder="مثال: برشلونة">
-      </div>
-      
-      <div class="form-group">
-        <label>الوقت:</label>
-        <input type="text" id="mTime" placeholder="مثال: 10:00 مساءً">
-      </div>
-      
-      <div class="form-group">
-        <label>رابط القناة الناقلة للمباراة (اختياري):</label>
-        <input type="text" id="mStream" placeholder="رابط البث المباشر">
-      </div>
-      
-      <button class="btn btn-green" id="btnSaveMatch" onclick="addOrUpdateMatch()">➕ حفظ ونشر المباراة</button>
+      <label>الفريق الثاني:</label>
+      <input type="text" id="mTeam2" placeholder="مثال: برشلونة">
 
-      <h3 style="margin-top: 1.5rem; color: var(--cyan); font-size: 1rem;">المباريات المضافة:</h3>
-      <div id="matchesList"></div>
+      <label>وقت المباراة:</label>
+      <input type="text" id="mTime" placeholder="مثال: 10:00 مساءً">
+
+      <label>رابط بث المباراة المباشر:</label>
+      <input type="text" id="mUrl" placeholder="https://domain.com/match.m3u8">
+
+      <button class="btn btn-green" id="saveMatchBtn" onclick="saveMatch()">➕ حفظ ونشر المباراة</button>
+
+      <div style="margin-top: 1.5rem;">
+        <label>المباريات المضافة حالياً:</label>
+        <div class="item-list" id="matchesList"></div>
+      </div>
     </div>
   </div>
-
-  <div id="status"></div>
 
   <script>
     const USER = "rrrr123kl-rgb";
     const REPO = "GDI";
-    let channelsData = [];
-    let matchesData = [];
+
+    let channels = [];
+    let matches = [];
 
     document.addEventListener("DOMContentLoaded", () => {
-      const savedToken = localStorage.getItem("gdi_gh_token");
-      if(savedToken) {
-        document.getElementById("ghToken").value = savedToken;
-        fetchAllData();
-      }
+      const savedToken = localStorage.getItem("gdi_github_token");
+      if(savedToken) document.getElementById("ghToken").value = savedToken;
+      loadData();
     });
 
     function saveToken() {
-      const t = document.getElementById("ghToken").value.trim();
-      if(!t) return alert("يرجى إدخال التوكن!");
-      localStorage.setItem("gdi_gh_token", t);
-      showStatus("تم حفظ التوكن، جاري تحميل البيانات...");
-      fetchAllData();
+      const token = document.getElementById("ghToken").value.trim();
+      if(!token) return alert("يرجى إدخال التوكن!");
+      localStorage.setItem("gdi_github_token", token);
+      alert("تم حفظ التوكن بنجاح!");
     }
 
-    function showStatus(msg) {
-      const s = document.getElementById("status");
-      s.innerText = msg;
-      s.style.display = "block";
-      setTimeout(() => s.style.display = "none", 3000);
+    function getToken() {
+      return localStorage.getItem("gdi_github_token");
     }
 
-    // معالجة قراءة ملف M3U من الهاتف أو الكمبيوتر
-    function handleM3UFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const text = evt.target.result;
-        // البحث عن أوّل رابط بث داخل ملف m3u
-        const lines = text.split('\n');
-        let streamUrl = "";
-        for (let line of lines) {
-          line = line.trim();
-          if (line && !line.startsWith('#')) {
-            streamUrl = line;
-            break;
-          }
-        }
-
-        if (streamUrl) {
-          document.getElementById("cUrl").value = streamUrl;
-          showStatus("✅ تم قراءة واستخراج رابط البث من ملف M3U بنجاح!");
-        } else {
-          alert("تعذر قراءة رابط مباشر داخل ملف M3U.");
-        }
-      };
-      reader.readAsText(file);
+    // إضافة حقل سيرفر جديد
+    function addServerInput(url = "") {
+      const container = document.getElementById("serversContainer");
+      const count = container.children.length + 1;
+      const div = document.createElement("div");
+      div.className = "server-input-group";
+      div.innerHTML = `
+        <input type="text" class="chan-server-url" value="${url}" placeholder="رابط البث (سيرفر ${count}) - m3u8">
+        ${count > 1 ? `<button class="btn btn-red" onclick="this.parentElement.remove()">✕</button>` : ''}
+      `;
+      container.appendChild(div);
     }
 
-    function testStream() {
-      const url = document.getElementById("testUrl").value.trim();
-      if(!url) return alert("ضع رابطاً لتجربته أولاً!");
-      const video = document.getElementById("previewPlayer");
-
-      if (Hls.isSupported() && url.includes(".m3u8")) {
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-      } else {
-        video.src = url;
-        video.play();
-      }
-    }
-
-    async function fetchAllData() {
+    async function loadData() {
       try {
         const cRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/channels.json?t=${Date.now()}`);
-        if(cRes.ok) channelsData = await cRes.json();
-        renderChannels();
+        if(cRes.ok) channels = await cRes.json();
 
         const mRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/matches.json?t=${Date.now()}`);
-        if(mRes.ok) matchesData = await mRes.json();
-        renderMatches();
+        if(mRes.ok) matches = await mRes.json();
+
+        renderChannelsList();
+        renderMatchesList();
       } catch(e) { console.error(e); }
     }
 
-    function renderChannels() {
-      const div = document.getElementById("channelsList");
-      div.innerHTML = channelsData.map((c, i) => `
-        <div class="list-item">
-          <div class="info">
-            <img src="${c.logo || 'https://via.placeholder.com/45'}" alt="">
-            <div style="margin-right: 10px;">
-              <strong>${c.name}</strong>
-            </div>
+    function renderChannelsList() {
+      const list = document.getElementById("channelsList");
+      list.innerHTML = channels.map((c, i) => `
+        <div class="item-row">
+          <div class="item-info">
+            <h4>${c.name}</h4>
+            <p>عدد السيرفرات: ${Array.isArray(c.servers) ? c.servers.length : (c.url ? 1 : 0)}</p>
           </div>
-          <div>
-            <button class="btn-edit" onclick="editChannel(${i})">تعديل</button>
-            <button class="btn-red" onclick="deleteChannel(${i})">حذف</button>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="editChannel(${i})">تعديل</button>
+            <button class="btn btn-red" onclick="deleteChannel(${i})">حذف</button>
           </div>
         </div>
       `).join('');
     }
 
-    function renderMatches() {
-      const div = document.getElementById("matchesList");
-      div.innerHTML = matchesData.map((m, i) => `
-        <div class="list-item">
-          <div>
-            <strong>${m.team1} 🆚 ${m.team2}</strong>
-            <div style="font-size:0.75rem; color:#94a3b8;">⏰ ${m.time}</div>
+    function renderMatchesList() {
+      const list = document.getElementById("matchesList");
+      list.innerHTML = matches.map((m, i) => `
+        <div class="item-row">
+          <div class="item-info">
+            <h4>${m.team1} 🆚 ${m.team2}</h4>
+            <p>⏰ ${m.time}</p>
           </div>
-          <div>
-            <button class="btn-edit" onclick="editMatch(${i})">تعديل</button>
-            <button class="btn-red" onclick="deleteMatch(${i})">حذف</button>
+          <div class="actions">
+            <button class="btn btn-purple" onclick="editMatch(${i})">تعديل</button>
+            <button class="btn btn-red" onclick="deleteMatch(${i})">حذف</button>
           </div>
         </div>
       `).join('');
     }
 
-    async function addOrUpdateChannel() {
-      const name = document.getElementById("cName").value.trim();
-      const logo = document.getElementById("cLogo").value.trim();
-      const url = document.getElementById("cUrl").value.trim();
-      const idx = parseInt(document.getElementById("channelIndex").value);
+    // تعديل القناة
+    function editChannel(index) {
+      const c = channels[index];
+      document.getElementById("chanName").value = c.name;
+      document.getElementById("chanLogo").value = c.logo || '';
+      document.getElementById("channelEditIndex").value = index;
 
-      if(!name || !url) return alert("يرجى ملء اسم القناة والرابط أو اختيار ملف M3U!");
+      const container = document.getElementById("serversContainer");
+      container.innerHTML = '';
 
-      const item = { name, logo, type: 'm3u', url };
-      if(idx === -1) channelsData.push(item);
-      else channelsData[idx] = item;
+      const servers = c.servers || (c.url ? [c.url] : []);
+      if(servers.length === 0) {
+        addServerInput();
+      } else {
+        servers.forEach(s => addServerInput(s));
+      }
 
-      await syncToGithub("channels.json", channelsData);
-      resetChannelForm();
+      document.getElementById("saveChanBtn").innerText = "🔄 التحديث والحفظ";
+      window.scrollTo({ top: 300, behavior: 'smooth' });
     }
 
-    function editChannel(i) {
-      const c = channelsData[i];
-      document.getElementById("cName").value = c.name;
-      document.getElementById("cLogo").value = c.logo || '';
-      document.getElementById("cUrl").value = c.url;
-      document.getElementById("channelIndex").value = i;
-      document.getElementById("btnSaveChannel").innerText = "✏️ تحديث القناة";
+    async function saveChannel() {
+      const token = getToken();
+      if(!token) return alert("يرجى حفظ GitHub Token أولاً!");
+
+      const name = document.getElementById("chanName").value.trim();
+      const logo = document.getElementById("chanLogo").value.trim();
+      const serverInputs = document.querySelectorAll(".chan-server-url");
+      const servers = Array.from(serverInputs).map(i => i.value.trim()).filter(val => val !== "");
+      const editIdx = parseInt(document.getElementById("channelEditIndex").value);
+
+      if(!name || servers.length === 0) return alert("يرجى كتابة اسم القناة وإضافة سيرفر واحد على الأقل!");
+
+      const channelObj = { name, logo, servers, url: servers[0] };
+
+      if(editIdx >= 0) {
+        channels[editIdx] = channelObj;
+      } else {
+        channels.push(channelObj);
+      }
+
+      await pushToGithub("channels.json", channels, "تحديث القنوات");
+      
+      // إعادة التعيين
+      document.getElementById("chanName").value = '';
+      document.getElementById("chanLogo").value = '';
+      document.getElementById("serversContainer").innerHTML = '<div class="server-input-group"><input type="text" class="chan-server-url" placeholder="رابط البث (سيرفر 1) - m3u8"></div>';
+      document.getElementById("channelEditIndex").value = "-1";
+      document.getElementById("saveChanBtn").innerText = "➕ حفظ ونشر القناة";
+
+      renderChannelsList();
     }
 
-    async function deleteChannel(i) {
-      if(!confirm("تأكيد حذف القناة؟")) return;
-      channelsData.splice(i, 1);
-      await syncToGithub("channels.json", channelsData);
+    async function deleteChannel(index) {
+      if(!confirm("هل أنت تأكد من حذف هذه القناة؟")) return;
+      channels.splice(index, 1);
+      await pushToGithub("channels.json", channels, "حذف قناة");
+      renderChannelsList();
     }
 
-    function resetChannelForm() {
-      document.getElementById("cName").value = '';
-      document.getElementById("cLogo").value = '';
-      document.getElementById("cUrl").value = '';
-      document.getElementById("m3uFileInput").value = '';
-      document.getElementById("channelIndex").value = -1;
-      document.getElementById("btnSaveChannel").innerText = "➕ حفظ ونشر القناة";
-    }
-
-    async function addOrUpdateMatch() {
-      const team1 = document.getElementById("mTeam1").value.trim();
-      const team2 = document.getElementById("mTeam2").value.trim();
-      const time = document.getElementById("mTime").value.trim();
-      const url = document.getElementById("mStream").value.trim();
-      const idx = parseInt(document.getElementById("matchIndex").value);
-
-      if(!team1 || !team2 || !time) return alert("يرجى ملء تفاصيل المباراة!");
-
-      const item = { team1, team2, time, url };
-      if(idx === -1) matchesData.push(item);
-      else matchesData[idx] = item;
-
-      await syncToGithub("matches.json", matchesData);
-      resetMatchForm();
-    }
-
-    function editMatch(i) {
-      const m = matchesData[i];
+    // تعديل المباراة
+    function editMatch(index) {
+      const m = matches[index];
       document.getElementById("mTeam1").value = m.team1;
       document.getElementById("mTeam2").value = m.team2;
       document.getElementById("mTime").value = m.time;
-      document.getElementById("mStream").value = m.url || '';
-      document.getElementById("matchIndex").value = i;
-      document.getElementById("btnSaveMatch").innerText = "✏️ تحديث المباراة";
+      document.getElementById("mUrl").value = m.url || '';
+      document.getElementById("matchEditIndex").value = index;
+
+      document.getElementById("saveMatchBtn").innerText = "🔄 التحديث والحفظ";
+      window.scrollTo({ top: 700, behavior: 'smooth' });
     }
 
-    async function deleteMatch(i) {
-      if(!confirm("تأكيد حذف المباراة؟")) return;
-      matchesData.splice(i, 1);
-      await syncToGithub("matches.json", matchesData);
-    }
+    async function saveMatch() {
+      const token = getToken();
+      if(!token) return alert("يرجى حفظ GitHub Token أولاً!");
 
-    function resetMatchForm() {
+      const team1 = document.getElementById("mTeam1").value.trim();
+      const team2 = document.getElementById("mTeam2").value.trim();
+      const time = document.getElementById("mTime").value.trim();
+      const url = document.getElementById("mUrl").value.trim();
+      const editIdx = parseInt(document.getElementById("matchEditIndex").value);
+
+      if(!team1 || !team2 || !time) return alert("يرجى ملء جميع بيانات المباراة!");
+
+      const matchObj = { team1, team2, time, url };
+
+      if(editIdx >= 0) {
+        matches[editIdx] = matchObj;
+      } else {
+        matches.push(matchObj);
+      }
+
+      await pushToGithub("matches.json", matches, "تحديث المباريات");
+
       document.getElementById("mTeam1").value = '';
       document.getElementById("mTeam2").value = '';
       document.getElementById("mTime").value = '';
-      document.getElementById("mStream").value = '';
-      document.getElementById("matchIndex").value = -1;
-      document.getElementById("btnSaveMatch").innerText = "➕ حفظ ونشر المباراة";
+      document.getElementById("mUrl").value = '';
+      document.getElementById("matchEditIndex").value = "-1";
+      document.getElementById("saveMatchBtn").innerText = "➕ حفظ ونشر المباراة";
+
+      renderMatchesList();
     }
 
-    async function syncToGithub(filename, data) {
-      const token = localStorage.getItem("gdi_gh_token");
-      if(!token) return alert("ضع التوكن الخاص بك أولاً!");
+    async function deleteMatch(index) {
+      if(!confirm("هل أنت تأكد من حذف هذه المباراة؟")) return;
+      matches.splice(index, 1);
+      await pushToGithub("matches.json", matches, "حذف مباراة");
+      renderMatchesList();
+    }
 
-      showStatus("جاري المزامنة والحفظ...");
+    // الدالة الرئيسية للتحديث المباشر على GitHub
+    async function pushToGithub(filename, data, commitMessage) {
+      const token = getToken();
+      const path = filename;
+      const apiUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${path}`;
 
       try {
-        const fileUrl = `https://api.github.com/repos/${USER}/${REPO}/contents/${filename}`;
         let sha = "";
+        const getFile = await fetch(apiUrl, {
+          headers: { Authorization: `token ${token}` }
+        });
 
-        const getRes = await fetch(fileUrl, { headers: { "Authorization": `token ${token}` } });
-        if(getRes.ok) {
-          const json = await getRes.json();
-          sha = json.sha;
+        if (getFile.ok) {
+          const fileData = await getFile.json();
+          sha = fileData.sha;
         }
 
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-        
-        const putRes = await fetch(fileUrl, {
+        const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+        const res = await fetch(apiUrl, {
           method: "PUT",
           headers: {
-            "Authorization": `token ${token}`,
+            Authorization: `token ${token}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            message: `Update ${filename}`,
-            content: content,
+            message: commitMessage,
+            content: contentBase64,
             sha: sha ? sha : undefined
           })
         });
 
-        if(putRes.ok) {
-          showStatus("✅ تم الحفظ بنجاح!");
-          fetchAllData();
+        if (res.ok) {
+          alert("✅ تم الحفظ والتحديث بنجاح!");
         } else {
-          alert("حدث خطأ، تأكد من التوكن.");
+          const err = await res.json();
+          alert("❌ حدث خطأ أثناء الحفظ: " + (err.message || "تأكد من صحة التوكن والصلاحيات"));
         }
-      } catch(e) {
-        console.error(e);
-        alert("فشل الاتصال بـ GitHub.");
+      } catch (e) {
+        alert("❌ حدث خطأ في الاتصال بالسيرفر!");
       }
     }
   </script>
