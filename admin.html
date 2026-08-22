@@ -74,7 +74,7 @@
       transition: 0.3s;
     }
 
-    textarea { height: 100px; resize: vertical; }
+    textarea { height: 110px; resize: vertical; }
 
     input:focus, textarea:focus {
       border-color: var(--cyan);
@@ -142,26 +142,24 @@
       <div class="section-title">🔑 إعدادات GitHub Token</div>
       <label>أدخل رمز التوكن الخاص بك (GitHub Token):</label>
       <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      <div style="display: flex; gap: 10px;">
-        <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن</button>
-      </div>
+      <button class="btn btn-cyan" onclick="saveToken()">تأكيد وحفظ التوكن في ذاكرة المتصفح</button>
     </div>
 
     <!-- 📁 إضافة وحفظ ملفات M3U -->
     <div class="section-card">
-      <div class="section-title">📁 إضافة/رفع ملف M3U</div>
-      <label>اسم الملف (مثال: quran أو channels):</label>
-      <input type="text" id="m3uName" placeholder="playlist">
+      <div class="section-title">📁 إضافة قائمة / ملف M3U</div>
+      <label>اسم القائمة (مثال: القرآن الكريم أو قنوات M3U):</label>
+      <input type="text" id="m3uName" placeholder="M3U Playlist">
 
-      <label>رابط ملف M3U أو محتوى الملف مباشرة:</label>
+      <label>رابط ملف M3U خارجي أو محتوى ملف M3U مباشرة:</label>
       <textarea id="m3uContent" placeholder="#EXTM3U&#10;#EXTINF:-1,اسم القناة&#10;http://domain.com/live.m3u8"></textarea>
 
-      <button class="btn btn-green" onclick="saveM3uFile()">📂 رفع ونشر ملف M3U على GitHub</button>
+      <button class="btn btn-green" onclick="saveM3uFile()">📂 رفع وحفظ ملف M3U على GitHub</button>
     </div>
 
     <!-- 📺 إدارة القنوات -->
     <div class="section-card">
-      <div class="section-title">📺 إضافة / تعديل قناة</div>
+      <div class="section-title">📺 إضافة / تعديل قناة (تعدد السيرفرات)</div>
       
       <input type="hidden" id="channelEditIndex" value="-1">
       
@@ -232,7 +230,7 @@
       const token = document.getElementById("ghToken").value.trim();
       if(!token) return alert("يرجى إدخال التوكن!");
       localStorage.setItem("gdi_github_token", token);
-      alert("✅ تم حفظ التوكن في المتصفح!");
+      alert("✅ تم حفظ التوكن في ذاكرة المتصفح!");
     }
 
     function getToken() {
@@ -271,11 +269,11 @@
       list.innerHTML = channels.map((c, i) => `
         <div class="item-row">
           <div class="item-info">
-            <h4>${c.name}</h4>
-            <p>عدد السيرفرات: ${Array.isArray(c.servers) ? c.servers.length : (c.url ? 1 : 0)}</p>
+            <h4>${c.name || 'قائمة M3U'}</h4>
+            <p>${c.m3uUrl ? 'رابط قائمة M3U' : 'عدد السيرفرات: ' + (Array.isArray(c.servers) ? c.servers.length : (c.url ? 1 : 0))}</p>
           </div>
           <div class="actions">
-            <button class="btn btn-purple" onclick="editChannel(${i})">تعديل</button>
+            ${!c.m3uUrl ? `<button class="btn btn-purple" onclick="editChannel(${i})">تعديل</button>` : ''}
             <button class="btn btn-red" onclick="deleteChannel(${i})">حذف</button>
           </div>
         </div>
@@ -300,20 +298,38 @@
 
     async function saveM3uFile() {
       const token = getToken();
-      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات!");
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن في الخانة أولاً!");
 
-      const name = document.getElementById("m3uName").value.trim() || "playlist";
+      const name = document.getElementById("m3uName").value.trim() || "قائمة M3U";
       const content = document.getElementById("m3uContent").value.trim();
 
-      if(!content) return alert("يرجى كتابة محتوى ملف M3U!");
+      if(!content) return alert("يرجى إدخال رابط أو محتوى ملف M3U!");
 
-      const fileName = name.endsWith('.m3u') ? name : `${name}.m3u`;
-      await pushRawToGithub(fileName, content, "تحديث ملف M3U");
+      let tempChannels = [...channels];
+      
+      // إذا كان المكتوب رابط وليس كود
+      if(content.startsWith("http://") || content.startsWith("https://")) {
+        tempChannels.push({ name: name, m3uUrl: content });
+      } else {
+        // إذا كان كود، نرفعه كملف منفصل م3u ثم نربطه
+        const fileName = `${Date.now()}_playlist.m3u`;
+        await pushRawToGithub(fileName, content, "رفع ملف M3U جديد");
+        const rawUrl = `https://raw.githubusercontent.com/${USER}/${REPO}/main/${fileName}`;
+        tempChannels.push({ name: name, m3uUrl: rawUrl });
+      }
+
+      const success = await pushToGithub("channels.json", tempChannels, "تحديث قوائم M3U");
+      if(success) {
+        channels = tempChannels;
+        document.getElementById("m3uName").value = '';
+        document.getElementById("m3uContent").value = '';
+        renderChannelsList();
+      }
     }
 
     function editChannel(index) {
       const c = channels[index];
-      document.getElementById("chanName").value = c.name;
+      document.getElementById("chanName").value = c.name || '';
       document.getElementById("chanLogo").value = c.logo || '';
       document.getElementById("channelEditIndex").value = index;
 
@@ -333,7 +349,7 @@
 
     async function saveChannel() {
       const token = getToken();
-      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات فوق!");
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات!");
 
       const name = document.getElementById("chanName").value.trim();
       const logo = document.getElementById("chanLogo").value.trim();
@@ -394,7 +410,7 @@
 
     async function saveMatch() {
       const token = getToken();
-      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات فوق!");
+      if(!token) return alert("❌ يرجى كتابة رمز التوكن أولاً في خانة الإعدادات!");
 
       const team1 = document.getElementById("mTeam1").value.trim();
       const team2 = document.getElementById("mTeam2").value.trim();
@@ -490,15 +506,15 @@
         });
 
         if (res.ok) {
-          alert("✅ تم رفع الملف وحفظ التغييرات بنجاح على GitHub!");
+          alert("✅ تم الحفظ والتحديث بنجاح على GitHub!");
           return true;
         } else {
           const err = await res.json();
-          alert("❌ فشلت عملية الرفع! خطأ من GitHub: " + (err.message || "رمز التوكن غير صحيح أو انتهت صلاحيته"));
+          alert("❌ فشل الحفظ! خطأ من GitHub: " + (err.message || "رمز التوكن خاطئ"));
           return false;
         }
       } catch (e) {
-        alert("❌ حدث خطأ في الاتصال بالشبكة!");
+        alert("❌ حدث خطأ في الاتصال!");
         return false;
       }
     }
