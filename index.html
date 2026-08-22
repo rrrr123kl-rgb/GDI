@@ -9,41 +9,90 @@
   <style>
     :root {
       --bg: #030712;
-      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-bg: rgba(15, 23, 42, 0.85);
       --cyan: #00f0ff;
       --purple: #a855f7;
-      --border: rgba(0, 240, 255, 0.25);
+      --border: rgba(0, 240, 255, 0.3);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
     body { background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 80%); color: #fff; min-height: 100vh; padding: 1rem; }
 
-    /* Animated OTP Glass Overlay */
-    .otp-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(20px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-    .otp-card { background: var(--card-bg); border: 1px solid var(--cyan); box-shadow: 0 0 50px rgba(0, 240, 255, 0.2); border-radius: 24px; padding: 2.5rem 1.5rem; text-align: center; max-width: 400px; width: 90%; position: relative; overflow: hidden; }
-    
-    /* Nodes Canvas Animation */
-    #nodesCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.6; }
+    /* شاشة الدخول */
+    .otp-overlay { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(3, 7, 18, 0.98); 
+      backdrop-filter: blur(25px); 
+      z-index: 9999; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .otp-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--cyan); 
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.25); 
+      border-radius: 24px; 
+      padding: 2.5rem 1.5rem; 
+      text-align: center; 
+      max-width: 380px; 
+      width: 90%; 
+    }
 
-    .otp-inputs { display: flex; gap: 12px; justify-content: center; direction: ltr; margin: 2rem 0; z-index: 2; position: relative; }
-    .otp-box { width: 55px; height: 60px; border-radius: 14px; background: rgba(0,0,0,0.6); border: 2px solid var(--border); color: var(--cyan); font-size: 1.8rem; font-weight: bold; text-align: center; outline: none; transition: 0.3s; }
-    .otp-box:focus { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,240,255,0.5); transform: translateY(-2px); }
+    .otp-inputs { 
+      display: flex; 
+      gap: 12px; 
+      justify-content: center; 
+      direction: ltr; 
+      margin: 1.5rem 0; 
+    }
+    .otp-box { 
+      width: 55px; 
+      height: 60px; 
+      border-radius: 14px; 
+      background: rgba(0,0,0,0.6); 
+      border: 2px solid var(--border); 
+      color: var(--cyan); 
+      font-size: 1.8rem; 
+      font-weight: bold; 
+      text-align: center; 
+      outline: none; 
+      transition: 0.3s; 
+    }
+    .otp-box:focus { 
+      border-color: var(--cyan); 
+      box-shadow: 0 0 20px rgba(0,240,255,0.5); 
+      transform: translateY(-2px); 
+    }
 
-    /* Player Modal */
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* مشغل البث المباشر */
     .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 8888; display: none; align-items: center; justify-content: center; padding: 1rem; }
-    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 20px; width: 100%; max-width: 900px; overflow: hidden; position: relative; box-shadow: 0 0 40px rgba(0,240,255,0.3); }
+    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 20px; width: 100%; max-width: 900px; overflow: hidden; position: relative; }
     .close-btn { position: absolute; top: 12px; left: 12px; background: #ef4444; color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 10; font-size: 1.2rem; }
 
-    /* Main UI */
     .container { max-width: 950px; margin: 0 auto; }
     .header { text-align: center; padding: 2rem 0; }
     .header h1 { color: var(--cyan); font-weight: 900; font-size: 2.2rem; text-shadow: 0 0 20px rgba(0,240,255,0.4); }
     
     .section-title { color: var(--purple); margin: 2rem 0 1rem; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; }
     
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.2rem; text-align: center; transition: 0.3s; cursor: pointer; backdrop-filter: blur(10px); }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.2rem; text-align: center; transition: 0.3s; cursor: pointer; }
     .card:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,240,255,0.15); }
-    .card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; margin-bottom: 10px; border: 1px solid var(--border); }
+    .card img { width: 65px; height: 65px; border-radius: 14px; object-fit: cover; margin-bottom: 10px; border: 1px solid var(--border); }
     .match-time { background: rgba(0,240,255,0.1); color: var(--cyan); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-top: 10px; border: 1px solid var(--border); }
   </style>
 </head>
@@ -51,18 +100,19 @@
 
   <div class="otp-overlay" id="otpOverlay">
     <div class="otp-card">
-      <canvas id="nodesCanvas"></canvas>
-      <div style="font-size: 2.8rem; margin-bottom: 0.5rem; position:relative; z-index:2;">🔒</div>
-      <h2 style="color: var(--cyan); position:relative; z-index:2;">رمز الدخول المباشر</h2>
-      <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px; position:relative; z-index:2;">أدخل الرمز المكون من 4 أرقام للمتابعة</p>
+      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔑</div>
+      <h2 style="color: var(--cyan);">أدخل رمز الدخول</h2>
+      <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">أدخل الرمز المكون من 4 أرقام للمشاهدة</p>
       
       <div class="otp-inputs">
-        <input type="password" maxlength="1" class="otp-box" autofocus>
-        <input type="password" maxlength="1" class="otp-box">
-        <input type="password" maxlength="1" class="otp-box">
-        <input type="password" maxlength="1" class="otp-box">
+        <input type="password" maxlength="1" class="otp-box" id="code1" autofocus>
+        <input type="password" maxlength="1" class="otp-box" id="code2">
+        <input type="password" maxlength="1" class="otp-box" id="code3">
+        <input type="password" maxlength="1" class="otp-box" id="code4">
       </div>
-      <p id="otpErr" style="color:#ef4444; font-size:0.85rem; display:none; position:relative; z-index:2;">❌ الرمز غير صحيح</p>
+      
+      <button class="btn-login" onclick="verifyOTP()">دخول للموقع</button>
+      <p id="otpErr" style="color:#ef4444; font-size:0.85rem; display:none; margin-top:10px;">❌ الرمز غير صحيح!</p>
     </div>
   </div>
 
@@ -86,52 +136,53 @@
   </div>
 
   <script>
-    const OTP_CODE = "2002";
+    const PASS_CODE = "2002"; 
     const USER = "rrrr123kl-rgb";
     const REPO = "GDI";
 
     document.addEventListener("DOMContentLoaded", () => {
-      if(localStorage.getItem("gdi_user_auth") === "true") {
+      if(localStorage.getItem("gdi_authenticated") === "true") {
         document.getElementById("otpOverlay").style.display = "none";
-      } else {
-        initNodesAnimation();
       }
-
-      setupOtpInputs();
+      setupInputs();
       loadContent();
     });
 
-    function setupOtpInputs() {
+    function setupInputs() {
       const inputs = document.querySelectorAll(".otp-box");
       inputs.forEach((input, index) => {
         input.addEventListener("input", () => {
-          if(input.value.length === 1 && index < inputs.length - 1) inputs[index + 1].focus();
-          verifyOTP();
+          if(input.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+          if(getFullCode().length === 4) verifyOTP();
         });
         input.addEventListener("keydown", (e) => {
-          if(e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus();
+          if(e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
         });
       });
     }
 
-    function verifyOTP() {
-      const inputs = document.querySelectorAll(".otp-box");
-      let code = "";
-      inputs.forEach(i => code += i.value);
+    function getFullCode() {
+      return document.getElementById("code1").value +
+             document.getElementById("code2").value +
+             document.getElementById("code3").value +
+             document.getElementById("code4").value;
+    }
 
-      if(code.length === 4) {
-        if(code === OTP_CODE) {
-          localStorage.setItem("gdi_user_auth", "true");
-          document.getElementById("otpOverlay").style.display = "none";
-        } else {
-          document.getElementById("otpErr").style.display = "block";
-          inputs.forEach(i => i.value = "");
-          inputs[0].focus();
-        }
+    function verifyOTP() {
+      if(getFullCode() === PASS_CODE) {
+        localStorage.setItem("gdi_authenticated", "true");
+        document.getElementById("otpOverlay").style.display = "none";
+      } else {
+        document.getElementById("otpErr").style.display = "block";
+        document.querySelectorAll(".otp-box").forEach(i => i.value = "");
+        document.getElementById("code1").focus();
       }
     }
 
-    // Dynamic Content Loader
     async function loadContent() {
       try {
         const cRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/channels.json?t=${Date.now()}`);
@@ -147,9 +198,9 @@
       if(!channels.length) return grid.innerHTML = '<p style="color:#64748b;">لا توجد قنوات حالياً</p>';
       grid.innerHTML = channels.map(c => `
         <div class="card" onclick="playStream('${c.url}')">
-          <img src="${c.logo || 'https://via.placeholder.com/60'}" alt="">
-          <h3 style="color:var(--cyan);">${c.name}</h3>
-          <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">اضغط لبدء البث</p>
+          <img src="${c.logo || 'https://via.placeholder.com/65'}" alt="">
+          <h3 style="color:var(--cyan); font-size:1.1rem;">${c.name}</h3>
+          <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">▶ اضغط للمشاهدة</p>
         </div>
       `).join('');
     }
@@ -165,7 +216,6 @@
       `).join('');
     }
 
-    // Stream Player Setup
     function playStream(url) {
       if(!url) return;
       const modal = document.getElementById("playerOverlay");
@@ -188,50 +238,6 @@
       video.pause();
       video.src = "";
       document.getElementById("playerOverlay").style.display = "none";
-    }
-
-    // Animated Canvas for OTP background
-    function initNodesAnimation() {
-      const canvas = document.getElementById("nodesCanvas");
-      const ctx = canvas.getContext("2d");
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-
-      let pts = [
-        {x: 50, y: 50, vx: 1, vy: 1},
-        {x: canvas.width - 50, y: 50, vx: -1, vy: 1},
-        {x: 50, y: canvas.height - 50, vx: 1, vy: -1},
-        {x: canvas.width - 50, y: canvas.height - 50, vx: -1, vy: -1}
-      ];
-
-      function animate() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.strokeStyle = "#00f0ff";
-        ctx.lineWidth = 1.5;
-
-        pts.forEach(p => {
-          p.x += p.vx * 0.5;
-          p.y += p.vy * 0.5;
-          if(p.x < 20 || p.x > canvas.width - 20) p.vx *= -1;
-          if(p.y < 20 || p.y > canvas.height - 20) p.vy *= -1;
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-          ctx.fillStyle = "#00f0ff";
-          ctx.fill();
-        });
-
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        ctx.lineTo(pts[1].x, pts[1].y);
-        ctx.lineTo(pts[3].x, pts[3].y);
-        ctx.lineTo(pts[2].x, pts[2].y);
-        ctx.closePath();
-        ctx.stroke();
-
-        requestAnimationFrame(animate);
-      }
-      animate();
     }
   </script>
 </body>
