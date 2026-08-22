@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GDI LIVE | البث المباشر</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    :root {
+      --bg: #030712;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --cyan: #00f0ff;
+      --purple: #c084fc;
+      --border: rgba(0, 240, 255, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+    body { background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 80%); color: #fff; min-height: 100vh; padding: 1rem; }
+
+    /* OTP Modal Style */
+    .otp-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.98); backdrop-filter: blur(25px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .otp-card { background: var(--card-bg); border: 1px solid var(--cyan); box-shadow: 0 0 40px rgba(0, 240, 255, 0.15); border-radius: 24px; padding: 2.5rem 1.5rem; text-align: center; max-width: 380px; width: 90%; }
+    .otp-inputs { display: flex; gap: 10px; justify-content: center; direction: ltr; margin: 1.5rem 0; }
+    .otp-box { width: 50px; height: 55px; border-radius: 12px; background: rgba(0,0,0,0.6); border: 2px solid var(--border); color: var(--cyan); font-size: 1.6rem; font-weight: bold; text-align: center; outline: none; }
+    .otp-box:focus { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,240,255,0.4); }
+
+    /* Player Modal */
+    .player-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 8888; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .player-box { background: #000; border: 1px solid var(--cyan); border-radius: 16px; width: 100%; max-width: 800px; overflow: hidden; position: relative; }
+    .close-btn { position: absolute; top: 10px; left: 10px; background: #ef4444; color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 10; }
+
+    /* UI Layout */
+    .container { max-width: 900px; margin: 0 auto; }
+    .header { text-align: center; padding: 1.5rem 0; }
+    .header h1 { color: var(--cyan); font-weight: 900; letter-spacing: 1px; }
+    
+    .section-title { color: var(--purple); margin: 1.5rem 0 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+    
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; text-align: center; transition: 0.2s; cursor: pointer; }
+    .card:hover { border-color: var(--cyan); transform: translateY(-3px); }
+    .match-time { background: rgba(0,240,255,0.1); color: var(--cyan); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة الـ OTP -->
+  <div class="otp-overlay" id="otpOverlay">
+    <div class="otp-card">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
+      <h2 style="color: var(--cyan);">رمز الدخول</h2>
+      <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px;">أدخل الرمز المكون من 4 أرقام للمتابعة</p>
+      <div class="otp-inputs">
+        <input type="password" maxlength="1" class="otp-box" autofocus>
+        <input type="password" maxlength="1" class="otp-box">
+        <input type="password" maxlength="1" class="otp-box">
+        <input type="password" maxlength="1" class="otp-box">
+      </div>
+      <p id="otpErr" style="color:#ef4444; font-size:0.8rem; display:none;">❌ الرمز غير صحيح</p>
+    </div>
+  </div>
+
+  <!-- مشغل الفيديو -->
+  <div class="player-overlay" id="playerOverlay">
+    <div class="player-box">
+      <button class="close-btn" onclick="closePlayer()">×</button>
+      <video id="videoPlayer" controls autoplay style="width:100%; height: auto; display:block;"></video>
+    </div>
+  </div>
+
+  <!-- الواجهة الرئيسية -->
+  <div class="container">
+    <div class="header">
+      <h1>⚡ GDI STREAM ⚡</h1>
+    </div>
+
+    <div class="section-title">⚽ مباريات اليوم</div>
+    <div class="grid" id="matchesGrid"></div>
+
+    <div class="section-title">📺 القنوات المباشرة</div>
+    <div class="grid" id="channelsGrid"></div>
+  </div>
+
+  <script>
+    const OTP_CODE = "2002"; // رمز الدخول للزوار
+    const USER = "rrrr123kl-rgb";
+    const REPO = "GDI";
+
+    // 1. نظام الـ OTP وحفظ الجلسة
+    document.addEventListener("DOMContentLoaded", () => {
+      if(localStorage.getItem("gdi_user_auth") === "true") {
+        document.getElementById("otpOverlay").style.display = "none";
+      }
+
+      const inputs = document.querySelectorAll(".otp-box");
+      inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+          if(input.value.length === 1 && index < inputs.length - 1) inputs[index + 1].focus();
+          verifyOTP();
+        });
+        input.addEventListener("keydown", (e) => {
+          if(e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus();
+        });
+      });
+
+      loadContent();
+    });
+
+    function verifyOTP() {
+      const inputs = document.querySelectorAll(".otp-box");
+      let code = "";
+      inputs.forEach(i => code += i.value);
+
+      if(code.length === 4) {
+        if(code === OTP_CODE) {
+          localStorage.setItem("gdi_user_auth", "true");
+          document.getElementById("otpOverlay").style.display = "none";
+        } else {
+          document.getElementById("otpErr").style.display = "block";
+          inputs.forEach(i => i.value = "");
+          inputs[0].focus();
+        }
+      }
+    }
+
+    // 2. جلب البيانات وعرضها
+    async function loadContent() {
+      try {
+        const cRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/channels.json?t=${Date.now()}`);
+        if(cRes.ok) {
+          const channels = await cRes.json();
+          renderChannels(channels);
+        }
+
+        const mRes = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/matches.json?t=${Date.now()}`);
+        if(mRes.ok) {
+          const matches = await mRes.json();
+          renderMatches(matches);
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    function renderChannels(channels) {
+      const grid = document.getElementById("channelsGrid");
+      if(!channels.length) return grid.innerHTML = '<p style="color:#64748b;">لا توجد قنوات حالياً</p>';
+      grid.innerHTML = channels.map(c => `
+        <div class="card" onclick="playStream('${c.url}')">
+          <h3 style="color:var(--cyan);">📺 ${c.name}</h3>
+          <p style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">اضغط للمشاهدة المباشرة</p>
+        </div>
+      `).join('');
+    }
+
+    function renderMatches(matches) {
+      const grid = document.getElementById("matchesGrid");
+      if(!matches.length) return grid.innerHTML = '<p style="color:#64748b;">لا توجد مباريات اليوم</p>';
+      grid.innerHTML = matches.map(m => `
+        <div class="card">
+          <h4 style="font-size:1.1rem;">${m.team1} 🆚 ${m.team2}</h4>
+          <span class="match-time">⏰ ${m.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // 3. مشغل ה-HLS للـ M3U8
+    function playStream(url) {
+      const modal = document.getElementById("playerOverlay");
+      const video = document.getElementById("videoPlayer");
+      modal.style.display = "flex";
+
+      if (Hls.isSupported() && url.includes(".m3u8")) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+      } else {
+        video.src = url;
+        video.play();
+      }
+    }
+
+    function closePlayer() {
+      const video = document.getElementById("videoPlayer");
+      video.pause();
+      video.src = "";
+      document.getElementById("playerOverlay").style.display = "none";
+    }
+  </script>
+</body>
+</html>
